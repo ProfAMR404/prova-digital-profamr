@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Prova Digital ProfAMR",
+  "version": "0.1.0",
+  "identifier": "org.profamr.provadigital",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Prova Digital ProfAMR",
+        "width": 1040,
+        "height": 800,
+        "minWidth": 820,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/prova-digital-engine"
+    ],
+    "shortDescription": "Cadeia de custodia da prova digital, offline",
+    "longDescription": "Ingere o laudo em PDF, pre-responde os itens da cadeia de custodia por pistas e por modelo local, classifica pela escala do gabinete [inexistencia, arranhao e quebra] e redige minutas. Local e offline."
+  }
+}

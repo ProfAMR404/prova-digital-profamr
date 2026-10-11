@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+node_modules/
+app-tauri/src-tauri/target/
+app-tauri/src-tauri/binaries/*.exe
+app-tauri/src-tauri/gen/
+app-tauri/src-tauri/icons/
+.env

@@ -1,0 +1,422 @@
+{
+ "TIPOS": [
+  {
+   "id": "msg",
+   "nome": "Mensageria (WhatsApp, Telegram)"
+  },
+  {
+   "id": "movel",
+   "nome": "Dispositivo móvel"
+  },
+  {
+   "id": "midia",
+   "nome": "Mídia de armazenamento"
+  },
+  {
+   "id": "nuvem",
+   "nome": "Nuvem / e-mail / servidor remoto"
+  },
+  {
+   "id": "volat",
+   "nome": "Dados voláteis / máquina ligada"
+  }
+ ],
+ "BLOCOS": [
+  {
+   "id": "A",
+   "titulo": "A. Reconhecimento e apreensão do vestígio",
+   "fund": "CPP, art. 158-A e art. 158-B, I a IV · POPs do MJSP [Portaria SENASP/MJSP 554/2024]",
+   "itens": [
+    {
+     "id": "A1",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O elemento foi reconhecido como potencial vestígio e formalmente registrado em auto de apreensão ou de exibição?",
+     "fund": "CPP, art. 158-B, I: reconhecimento como fase inaugural da cadeia.",
+     "minuta": "O elemento digital ingressou nos autos sem registro formal de reconhecimento como vestígio, em desacordo com o art. 158-B, I, do CPP. A ausência do ato inaugural impede aferir o instante em que o objeto passou a integrar a cadeia documentada."
+    },
+    {
+     "id": "A2",
+     "peso": "critico",
+     "core": true,
+     "txt": "O hardware foi individualizado por marca, modelo e IMEI ou número de série no momento da apreensão?",
+     "fund": "CPP, art. 158-A: rastreabilidade da posse; identificação unívoca do vestígio.",
+     "minuta": "A apreensão ocorreu sem individualização do aparelho por IMEI ou número de série. A omissão impede o juízo de mesmidade entre o objeto apreendido e o objeto periciado, requisito de rastreabilidade extraído do art. 158-A do CPP. Sem identificador unívoco, a correspondência entre vestígio e laudo repousa em presunção."
+    },
+    {
+     "id": "A3",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O dispositivo foi isolado de radiofrequência (modo avião, bolsa de Faraday ou desligamento) com registro do procedimento?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: preservação; risco de apagamento remoto e sincronização superveniente.",
+     "minuta": "O aparelho permaneceu conectado à rede após a apreensão, sem isolamento de radiofrequência nem registro do procedimento. A conexão admite sincronização, recebimento e apagamento remoto de conteúdo, com alteração do estado do vestígio entre a apreensão e o exame, em desacordo com as diretrizes de preservação da ABNT NBR ISO/IEC 27037:2013."
+    },
+    {
+     "id": "A4",
+     "peso": "critico",
+     "core": true,
+     "txt": "Constam quem apreendeu, local, data e hora da apreensão?",
+     "fund": "CPP, art. 158-A: história cronológica do vestígio a partir do reconhecimento.",
+     "minuta": "O auto não registra o agente responsável pela apreensão, o local e o horário do ato. A cadeia de custódia consiste no conjunto de procedimentos destinados a documentar a história cronológica do vestígio e a rastrear a posse e o manuseio [CPP, art. 158-A]. Sem o marco inicial, não há cadeia a ser aferida e sim narrativa desprovida de lastro documental."
+    },
+    {
+     "id": "A5",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O estado do aparelho (ligado, desligado, bloqueado, carga) e o método de desbloqueio foram documentados?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: justificabilidade; documentação de alterações inevitáveis.",
+     "minuta": "O laudo silencia sobre o estado do aparelho na apreensão e sobre o método empregado para o desbloqueio. A ABNT NBR ISO/IEC 27037:2013 exige documentação das alterações inevitáveis e a justificação técnica de cada intervenção. A omissão retira do juízo e da defesa a possibilidade de aferir se o acesso decorreu de exploração de vulnerabilidade, de senha fornecida ou de determinação judicial."
+    },
+    {
+     "id": "A6",
+     "peso": "formal",
+     "core": false,
+     "txt": "Houve fixação do vestígio no local (fotografia, filmagem ou croqui) antes da remoção?",
+     "fund": "CPP, art. 158-B, III: descrição detalhada do vestígio e do local.",
+     "minuta": "A remoção do vestígio ocorreu sem fixação fotográfica ou audiovisual prévia, em desacordo com o art. 158-B, III, do CPP. A irregularidade admite suprimento por prova testemunhal quanto à posição e ao estado do objeto, com reflexo na força persuasiva do conjunto."
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "titulo": "B. Acondicionamento, transporte e recebimento",
+   "fund": "CPP, art. 158-B, V a VII e art. 158-D · POPs do MJSP [Portaria SENASP/MJSP 554/2024]",
+   "itens": [
+    {
+     "id": "B1",
+     "peso": "critico",
+     "core": true,
+     "txt": "O vestígio foi acondicionado em recipiente selado por lacre de numeração individualizada?",
+     "fund": "CPP, art. 158-D, § 1º: lacre numerado como garantia de inviolabilidade.",
+     "minuta": "O acondicionamento ocorreu sem lacre de numeração individualizada. O art. 158-D, § 1º, do CPP exige selagem numerada para garantir a inviolabilidade e a idoneidade do vestígio durante o transporte. A falta do lacre numerado retira o único mecanismo legal de detecção objetiva de violação no percurso entre a apreensão e a perícia."
+    },
+    {
+     "id": "B2",
+     "peso": "critico",
+     "core": true,
+     "txt": "Cada rompimento de lacre foi registrado com nome, matrícula do responsável, data, local, finalidade e identificação do novo lacre?",
+     "fund": "CPP, art. 158-D, § 4º: ficha de acompanhamento do vestígio.",
+     "minuta": "Os rompimentos de lacre não foram lançados na ficha de acompanhamento do vestígio, com nome e matrícula do responsável, data, local, finalidade e indicação do novo lacre, na forma do art. 158-D, § 4º, do CPP. O registro constitui o instrumento pelo qual a lei torna auditável cada abertura do recipiente; a omissão converte o intervalo entre a coleta e o exame em zona opaca."
+    },
+    {
+     "id": "B3",
+     "peso": "formal",
+     "core": false,
+     "txt": "O lacre rompido foi acondicionado no interior do novo recipiente?",
+     "fund": "CPP, art. 158-D, § 5º.",
+     "minuta": "O lacre rompido não foi acondicionado no interior do novo recipiente, em desacordo com o art. 158-D, § 5º, do CPP. A irregularidade, isolada, não compromete a integridade do conteúdo, mas subtrai elemento de conferência material da sequência de aberturas."
+    },
+    {
+     "id": "B4",
+     "peso": "critico",
+     "core": true,
+     "txt": "Há registro das transferências de posse (quem entregou, quem recebeu, quando) do momento da apreensão até o exame?",
+     "fund": "CPP, art. 158-A e art. 158-B, VI e VII: controle de custódia no transporte e no recebimento.",
+     "minuta": "O trajeto do vestígio entre a apreensão e a perícia carece de registro das transferências de posse. A cadeia de custódia pressupõe documentação contínua da posse e do manuseio [CPP, art. 158-A], com controle no transporte e no recebimento [CPP, art. 158-B, VI e VII]. Elos não documentados equivalem, para efeito de aferição, a elos inexistentes, porque a integridade não se presume em favor de quem tinha o dever de documentar."
+    },
+    {
+     "id": "B5",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O transporte ocorreu em condições que impedem adulteração, degradação ou dano ao vestígio?",
+     "fund": "CPP, art. 158-B, VI: transporte com preservação das características.",
+     "minuta": "As condições de transporte do vestígio não constam dos autos, em desacordo com o art. 158-B, VI, do CPP. Dispositivos de armazenamento sofrem degradação por impacto, temperatura e campo magnético, de modo que a omissão compromete a aferição do estado do objeto na chegada ao órgão pericial."
+    },
+    {
+     "id": "B6",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O recebimento pelo órgão pericial foi formalizado com termo, data e identificação do recebedor?",
+     "fund": "CPP, art. 158-B, VII: transferência formal da posse com documentação.",
+     "minuta": "O recebimento do vestígio pelo órgão pericial não foi formalizado com termo, data e identificação do recebedor, na forma do art. 158-B, VII, do CPP. A ausência do termo impede fixar o instante em que a responsabilidade pela guarda migrou para a perícia."
+    }
+   ]
+  },
+  {
+   "id": "C",
+   "titulo": "C. Aquisição forense",
+   "fund": "ABNT NBR ISO/IEC 27037:2013 · POPs do MJSP [Informática Forense, Portaria SENASP/MJSP 554/2024]",
+   "itens": [
+    {
+     "id": "C1",
+     "peso": "critico",
+     "core": true,
+     "txt": "O exame recaiu sobre imagem forense (cópia bit a bit), preservado o original?",
+     "fund": "POP SENASP/MJ 3.1: exame sobre cópia; ABNT NBR ISO/IEC 27037:2013: preservação do original.",
+     "minuta": "O exame recaiu diretamente sobre o dispositivo original, sem produção de imagem forense. O trabalho pericial sobre o original altera metadados de acesso e inviabiliza a repetição do exame em idênticas condições, com violação da repetibilidade exigida pela ABNT NBR ISO/IEC 27037:2013 e pelo Procedimento Operacional Padrão de informática forense. A perda da repetibilidade esvazia o direito à contraprova técnica."
+    },
+    {
+     "id": "C2",
+     "peso": "critico",
+     "core": true,
+     "txt": "Foi empregado bloqueador de escrita, por hardware ou software, com registro no laudo?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: preservação da integridade do original durante a aquisição.",
+     "minuta": "A aquisição ocorreu sem bloqueador de escrita, ou sem registro do emprego no laudo. O bloqueio de escrita constitui a garantia técnica de que o procedimento de cópia não gravou dado algum na mídia original, requisito de preservação da ABNT NBR ISO/IEC 27037:2013. Sem o bloqueio documentado, o estado do original ao final do exame difere, em tese, do estado na apreensão."
+    },
+    {
+     "id": "C3",
+     "peso": "critico",
+     "core": true,
+     "txt": "O hash da mídia ou do arquivo original foi calculado no momento da aquisição?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: verificação de integridade; mesmidade do vestígio.",
+     "minuta": "O laudo não registra o cálculo do hash da fonte original no momento da aquisição. O hash constitui a assinatura matemática que permite demonstrar, a qualquer tempo, a identidade entre o conteúdo examinado e o conteúdo apreendido. Sem o valor de referência, nenhuma verificação posterior de integridade é possível e a mesmidade do vestígio passa a depender exclusivamente da palavra do agente."
+    },
+    {
+     "id": "C4",
+     "peso": "critico",
+     "core": true,
+     "txt": "O hash da cópia foi calculado e confrontado com o hash do original, com o resultado consignado?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: verificação da fidelidade da cópia.",
+     "minuta": "O laudo não consigna o confronto entre o hash da cópia e o hash do original. A conferência constitui o ato que demonstra a fidelidade bit a bit da imagem periciada. A omissão impede afirmar que o material analisado corresponde ao material apreendido."
+    },
+    {
+     "id": "C5",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O algoritmo de hash foi identificado, com emprego de função criptográfica atual (SHA-256 ou superior)?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: auditabilidade do método.",
+     "minuta": "O laudo não identifica o algoritmo de hash empregado, ou registra apenas função com colisões conhecidas. A identificação do algoritmo integra a auditabilidade do método, porque a força probatória do registro de integridade varia conforme a função utilizada."
+    },
+    {
+     "id": "C6",
+     "peso": "relevante",
+     "core": false,
+     "txt": "A ferramenta forense foi identificada por nome e versão?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: reprodutibilidade e auditabilidade.",
+     "minuta": "O laudo não identifica a ferramenta forense por nome e versão. A identificação permite aferir a adequação do instrumento ao objeto e reproduzir o procedimento por terceiro, atendendo à reprodutibilidade e à auditabilidade preconizadas pela ABNT NBR ISO/IEC 27037:2013. A omissão converte o resultado em enunciado insuscetível de controle."
+    },
+    {
+     "id": "C7",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O operador responsável pela extração foi identificado por nome, matrícula e qualificação?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: justificabilidade; CPP, art. 159.",
+     "minuta": "O laudo não identifica o operador responsável pela extração. A identificação viabiliza o controle da qualificação técnica de quem manipulou o vestígio e o exercício das faculdades do art. 159, § 3º, do CPP."
+    },
+    {
+     "id": "C8",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O método de extração (física, sistema de arquivos ou lógica) foi indicado e a escolha justificada?",
+     "fund": "POP SENASP/MJ 3.2: exame de equipamento computacional portátil.",
+     "minuta": "O laudo não indica o método de extração empregado nem justifica a escolha. Extrações lógicas capturam subconjunto do conteúdo e não recuperam registros apagados, de modo que a omissão impede aferir a completude do acervo examinado."
+    },
+    {
+     "id": "C9",
+     "peso": "relevante",
+     "core": false,
+     "txt": "A data e a hora do sistema do dispositivo foram conferidas com fonte de tempo confiável, com registro de eventual divergência?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: documentação das condições do exame.",
+     "minuta": "O laudo não registra a conferência do relógio do dispositivo com fonte de tempo confiável. Divergência de horário ou de fuso desloca a cronologia dos registros e compromete inferências sobre simultaneidade, presença e sequência de condutas."
+    }
+   ]
+  },
+  {
+   "id": "D",
+   "titulo": "D. Exame pericial e laudo",
+   "fund": "CPP, art. 158-B, VIII, art. 158-C e art. 159 · POPs do MJSP [Portaria SENASP/MJSP 554/2024]",
+   "itens": [
+    {
+     "id": "D1",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O exame foi realizado por perito oficial ou, na falta, observado o art. 159, § 1º, do CPP?",
+     "fund": "CPP, art. 158-C, caput e art. 159, §§ 1º e 2º.",
+     "minuta": "O exame não foi realizado por perito oficial, sem demonstração do preenchimento dos requisitos do art. 159, § 1º, do CPP. A qualificação do executor integra a validade do ato pericial."
+    },
+    {
+     "id": "D2",
+     "peso": "critico",
+     "core": false,
+     "txt": "A metodologia do exame está descrita de modo auditável e reproduzível?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: auditabilidade, repetibilidade, reprodutibilidade e justificabilidade.",
+     "minuta": "O laudo apresenta conclusões sem descrição da metodologia empregada. A prova técnica submete-se ao controle epistêmico das partes, o que pressupõe a exposição do caminho percorrido entre o vestígio e a conclusão. Laudo que enuncia resultado sem método produz elemento insuscetível de refutação, incompatível com o contraditório substancial [CR, art. 5º, LV]."
+    },
+    {
+     "id": "D3",
+     "peso": "relevante",
+     "core": false,
+     "txt": "Os arquivos relevantes foram individualizados com hash próprio no anexo eletrônico?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: identificador único por evidência.",
+     "minuta": "O anexo eletrônico não individualiza os arquivos relevantes por hash próprio. A identificação unitária permite verificar, item a item, a correspondência entre o arquivo citado no laudo e o arquivo entregue à defesa."
+    },
+    {
+     "id": "D4",
+     "peso": "critico",
+     "core": false,
+     "txt": "O acervo foi apresentado na íntegra, sem recorte seletivo de diálogos ou de períodos?",
+     "fund": "CR, art. 5º, LV: contraditório; integralidade do elemento probatório.",
+     "minuta": "O laudo reproduz recortes de diálogos, sem apresentação do acervo íntegro. O fragmento subtrai o contexto e impede que a defesa demonstre o sentido das passagens selecionadas, com quebra da paridade de armas. A seleção prévia do que a defesa pode contestar transfere ao órgão de persecução o controle do próprio objeto do contraditório."
+    },
+    {
+     "id": "D5",
+     "peso": "critico",
+     "core": true,
+     "txt": "Há correspondência demonstrada entre o vestígio apreendido e o objeto do laudo (identificadores coincidentes)?",
+     "fund": "CPP, art. 158-A: rastreabilidade; princípio da mesmidade.",
+     "minuta": "Os identificadores do objeto periciado não coincidem com os do vestígio apreendido, ou a correspondência não foi demonstrada. A mesmidade constitui pressuposto da prova pericial: o exame deve recair sobre o mesmo objeto apreendido e não sobre objeto semelhante. Sem demonstração da identidade, o laudo perde referência empírica."
+    },
+    {
+     "id": "D6",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O laudo registra o novo lacre e a devolução do material à central de custódia?",
+     "fund": "CPP, art. 158-D, § 4º e art. 158-F.",
+     "minuta": "O laudo não registra a aposição de novo lacre nem a devolução do material à central de custódia, na forma dos arts. 158-D, § 4º e 158-F do CPP. A omissão interrompe a documentação da cadeia no ponto exato em que o vestígio deveria retornar à guarda controlada."
+    },
+    {
+     "id": "D7",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O laudo declara limitações, margens de erro e ressalvas técnicas do exame?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: justificabilidade; CPP, art. 159, § 5º, II.",
+     "minuta": "O laudo apresenta conclusões sem declaração de limitações e de margens de erro. Toda técnica forense opera com taxa de erro e a omissão do dado converte resultado probabilístico em enunciado categórico, com sobrevalorização do elemento pelo julgador."
+    }
+   ]
+  },
+  {
+   "id": "E",
+   "titulo": "E. Armazenamento, acesso da defesa e contraprova",
+   "fund": "CPP, art. 158-B, IX, art. 158-E, art. 158-F e art. 159, § 3º · POPs do MJSP [Portaria SENASP/MJSP 554/2024]",
+   "itens": [
+    {
+     "id": "E1",
+     "peso": "critico",
+     "core": true,
+     "txt": "O material original foi armazenado de modo a permitir exame posterior e contraprova?",
+     "fund": "CPP, art. 158-E e art. 158-F: central de custódia; STJ, RHC 218.358/PI, Rel. Min. Sebastião Reis Júnior, Sexta Turma, j. 04/11/2025.",
+     "minuta": "O material original tornou-se inacessível por falha de armazenamento ao longo da cadeia. O art. 158-F do CPP impõe a devolução do material à central de custódia após a perícia e o art. 158-E disciplina a guarda com registro de acesso. A perda do original suprime a possibilidade de contraprova e transforma o laudo em peça infensa a verificação. O Superior Tribunal de Justiça reconheceu a nulidade de laudo pericial fundado em mídias cujo conteúdo integral se tornou inacessível à defesa por falha de armazenamento [STJ, RHC 218.358/PI, Rel. Min. Sebastião Reis Júnior, Sexta Turma, j. 04/11/2025]."
+    },
+    {
+     "id": "E2",
+     "peso": "critico",
+     "core": false,
+     "txt": "A defesa teve acesso efetivo aos arquivos brutos e não apenas ao relatório da ferramenta?",
+     "fund": "CR, art. 5º, LV; CPP, art. 159, § 3º: quesitos e assistente técnico.",
+     "minuta": "A defesa recebeu apenas o relatório produzido pela ferramenta forense, sem acesso aos arquivos brutos da extração. O art. 159, § 3º, do CPP assegura a indicação de assistente técnico e a formulação de quesitos, faculdades que pressupõem acesso ao material sobre o qual o exame recaiu. Contraditório limitado ao produto final da perícia reduz a defesa técnica a manifestação sobre conclusão alheia."
+    },
+    {
+     "id": "E3",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O formato de entrega permite verificação independente de hash e reprocessamento por ferramenta diversa?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: reprodutibilidade; contraditório técnico.",
+     "minuta": "Os arquivos foram disponibilizados em formato que impede a verificação independente de hash e o reprocessamento por ferramenta diversa. A entrega em formato proprietário ou em imagem estática converte o contraditório técnico em exercício meramente visual."
+    },
+    {
+     "id": "E4",
+     "peso": "relevante",
+     "core": false,
+     "txt": "O prazo e as condições de acesso foram compatíveis com a produção de contraprova técnica?",
+     "fund": "CR, art. 5º, LV; CPP, art. 159, § 5º.",
+     "minuta": "O prazo concedido à defesa mostrou-se incompatível com o volume do acervo e com o tempo técnico de processamento. Prazo insuficiente para exame de acervo extenso equivale, no resultado, à negativa de acesso."
+    }
+   ]
+  },
+  {
+   "id": "F",
+   "titulo": "F. Critérios por tipo de prova",
+   "fund": "aplicável conforme seleção do bloco 2",
+   "itens": [
+    {
+     "id": "F1",
+     "peso": "critico",
+     "core": false,
+     "tipos": [
+      "msg"
+     ],
+     "txt": "[Mensageria] O conteúdo foi extraído do dispositivo por ferramenta forense e não por captura de tela?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013; STJ, HC 1.036.370, Rel. Min. Joel Ilan Paciornik, Quinta Turma, 2025.",
+     "minuta": "O conteúdo de mensageria ingressou nos autos por captura de tela, sem extração por ferramenta forense e sem cálculo de hash. A imagem de tela não preserva metadados, não permite verificação de integridade e admite montagem por edição de interface ou por manipulação do aparelho. Impugnada a autenticidade, incumbe a quem produziu o elemento demonstrar a integridade da fonte e não ao arguido provar a falsificação."
+    },
+    {
+     "id": "F2",
+     "peso": "critico",
+     "core": false,
+     "tipos": [
+      "msg"
+     ],
+     "txt": "[Mensageria] Os metadados essenciais (identificadores de conta, remetente, destinatário, marcas temporais) foram preservados e apresentados?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: integridade e completude do registro.",
+     "minuta": "A apresentação do conteúdo omite os metadados de identificação das contas e as marcas temporais das mensagens. Sem os metadados, a atribuição de autoria repousa em inferência a partir do nome exibido na interface, dado alterável pelo usuário e insuficiente para individualizar o emissor."
+    },
+    {
+     "id": "F3",
+     "peso": "relevante",
+     "core": false,
+     "tipos": [
+      "movel"
+     ],
+     "txt": "[Dispositivo móvel] A extração observou a hierarquia física, sistema de arquivos e lógica, com justificação do nível alcançado?",
+     "fund": "POP SENASP/MJ 3.2: exame de equipamento computacional portátil.",
+     "minuta": "O laudo não demonstra a tentativa de extração no nível mais completo disponível nem justifica a limitação do procedimento. A escolha do método condiciona o universo de dados recuperados, com reflexo direto sobre a completude do acervo submetido ao contraditório."
+    },
+    {
+     "id": "F4",
+     "peso": "critico",
+     "core": false,
+     "tipos": [
+      "nuvem"
+     ],
+     "txt": "[Nuvem / e-mail] Há autorização judicial específica e fundamentada para o acesso ao conteúdo remoto?",
+     "fund": "CR, art. 5º, X e XII; Lei 12.965/2014, art. 7º, III e art. 10, §§ 1º e 2º.",
+     "minuta": "O acesso ao conteúdo armazenado em servidor remoto ocorreu sem autorização judicial específica. A inviolabilidade das comunicações privadas armazenadas decorre do art. 5º, X e XII, da CR e o art. 7º, III, da Lei 12.965/2014 assegura a inviolabilidade e o sigilo das comunicações armazenadas, com ressalva de ordem judicial. Autorização genérica de busca não supre a exigência, porque o objeto protegido difere do continente físico apreendido."
+    },
+    {
+     "id": "F5",
+     "peso": "relevante",
+     "core": false,
+     "tipos": [
+      "nuvem"
+     ],
+     "txt": "[Nuvem / e-mail] A ordem judicial delimitou objeto, contas e recorte temporal?",
+     "fund": "CR, art. 5º, X e XII: proporcionalidade da medida invasiva.",
+     "minuta": "A ordem judicial autorizou o acesso sem delimitação de objeto, de contas ou de recorte temporal. Autorização aberta converte a medida em devassa e desatende a proporcionalidade exigida para a restrição do sigilo."
+    },
+    {
+     "id": "F6",
+     "peso": "relevante",
+     "core": false,
+     "tipos": [
+      "volat"
+     ],
+     "txt": "[Dados voláteis] A ordem de volatilidade foi observada e documentada (memória antes de armazenamento persistente)?",
+     "fund": "ABNT NBR ISO/IEC 27037:2013: priorização por volatilidade.",
+     "minuta": "O procedimento não observou a ordem de volatilidade na coleta, ou não documentou a sequência adotada. Dados em memória desaparecem com o desligamento, de modo que a inversão da ordem produz perda irreversível de informação e impede a repetição do exame."
+    },
+    {
+     "id": "F7",
+     "peso": "critico",
+     "core": true,
+     "tipos": [
+      "midia"
+     ],
+     "txt": "[Mídia de armazenamento] A mídia foi identificada por número de série e o hash conferido antes e depois da duplicação?",
+     "fund": "POP SENASP/MJ 3.1: exame pericial de mídia de armazenamento computacional.",
+     "minuta": "A mídia não foi identificada por número de série, ou o hash não foi conferido antes e depois da duplicação. A dupla conferência constitui o procedimento que demonstra a fidelidade da imagem e a preservação do original."
+    }
+   ]
+  }
+ ],
+ "portas": {
+  "porta1": [
+   "A4",
+   "A2",
+   "B2",
+   "B4",
+   "E1"
+  ],
+  "porta2": [
+   "C1",
+   "C3",
+   "E2"
+  ]
+ },
+ "quebra": [
+  "C2",
+  "C4",
+  "D4",
+  "D5",
+  "F1"
+ ]
+}

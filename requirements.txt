@@ -1,0 +1,7 @@
+# Motor da Prova Digital ProfAMR [sidecar]. Extracao de PDF; Ollama via HTTP local
+# [sem dependencia extra]. OCR de laudo escaneado fica para versao futura.
+pdfplumber>=0.11
+# Alternativa de extracao, usada como fallback:
+# PyMuPDF>=1.24
+# Empacotar como executavel:
+# pyinstaller>=6.0

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prova Digital ProfAMR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="marca">
+    <img src="assets/logo.png" alt="Prof. AMR" class="logo">
+    <span class="wm">Prof. AMR</span>
+  </header>
+  <div class="filete"></div>
+
+  <main>
+    <p class="kicker">Cadeia de custódia da prova digital · penal · offline</p>
+    <h1>Prova Digital</h1>
+
+    <section class="controles">
+      <button id="btn-arquivo" class="btn">Escolher laudo [PDF]…</button>
+      <span id="arquivo" class="arquivo">Nenhum laudo selecionado</span>
+      <label class="check"><input type="checkbox" id="llm"> Pré-responder com modelo local [Ollama]</label>
+    </section>
+
+    <section class="acao">
+      <button id="btn-analisar" class="btn primario">Analisar laudo</button>
+      <button id="btn-minutas" class="btn" disabled>Gerar minutas</button>
+      <button id="btn-exportar" class="btn" disabled>Exportar JSON</button>
+      <span id="progresso" class="progresso">Pronto.</span>
+    </section>
+
+    <section id="ident" class="ident" hidden></section>
+    <section id="veredito" class="veredito neutro" hidden></section>
+
+    <section id="blocos" class="blocos"></section>
+
+    <section class="saida" hidden id="saidaBox">
+      <h2>Saída</h2>
+      <textarea id="saida" class="saida-txt" spellcheck="false"></textarea>
+    </section>
+
+    <p class="rodape">Offline · o laudo não sai da máquina · a pré-resposta é apoio, a confirmação é humana. Não é laudo nem parecer.</p>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
