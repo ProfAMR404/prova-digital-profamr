@@ -42,4 +42,15 @@ h2{font-family:var(--ui);font-size:.8rem;letter-spacing:.08em;text-transform:upp
 select.resp{font-family:var(--ui);font-size:13px;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:#fff}
 .saida-txt{width:100%;min-height:260px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.55;padding:12px;border:1px solid var(--bd);border-radius:6px;background:#FCFCFA;white-space:pre-wrap}
 .rodape{font-family:var(--ui);font-size:11.5px;color:#8A8880;margin-top:26px;padding-top:12px;border-top:1px solid var(--bd)}
+.ficha,.tipos-box{margin:0 0 14px}
+.grid-ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 14px}
+.campo{display:flex;flex-direction:column;font-family:var(--ui);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--titulo);gap:3px}
+.campo-largo{grid-column:1 / -1}
+.campo input,.campo textarea{font-family:var(--corpo);font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:#fff}
+.campo input:focus,.campo textarea:focus{outline:2px solid var(--ouro);outline-offset:1px}
+.nota{font-family:var(--ui);font-size:12px;color:var(--titulo);margin:0 0 8px}
+.tipos{display:flex;flex-wrap:wrap;gap:8px}
+.tipo-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font-family:var(--ui);font-size:13px;cursor:pointer;background:#fff;user-select:none}
+.tipo-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.item.inaplicavel{opacity:.4}
 @media (max-width:760px){.item{grid-template-columns:1fr}}

@@ -20,7 +20,30 @@
     <p class="kicker">Cadeia de custódia da prova digital · penal · offline</p>
     <h1>Prova Digital</h1>
 
+    <section class="ficha">
+      <h2>1. Ficha do caso</h2>
+      <div class="grid-ficha">
+        <label class="campo">Autos n.<input id="k-autos" placeholder="0000000-00.0000.8.24.0000"></label>
+        <label class="campo">Classe<input id="k-classe" placeholder="Apelação Criminal"></label>
+        <label class="campo">Vara / Órgão<input id="k-vara" placeholder="Vara / Câmara"></label>
+        <label class="campo">Arguido<input id="k-arguido" placeholder="Nome do arguido"></label>
+        <label class="campo">Imputação<input id="k-imp" placeholder="Tipo penal imputado"></label>
+        <label class="campo">Etapa<input id="k-etapa" placeholder="Onde o caso está"></label>
+        <label class="campo">Perito / Órgão pericial<input id="k-perito" placeholder="IGP/SC, Setor de Informática"></label>
+        <label class="campo">Data<input id="k-data" type="date"></label>
+        <label class="campo campo-largo">Hipótese acusatória [HAc]<textarea id="k-hac" rows="2" placeholder="O que a acusação afirma"></textarea></label>
+        <label class="campo campo-largo">Hipótese defensiva [HDef]<textarea id="k-hdef" rows="2" placeholder="O que a defesa afirma"></textarea></label>
+      </div>
+    </section>
+
+    <section class="tipos-box">
+      <h2>2. Tipo de prova digital em exame</h2>
+      <p class="nota">A seleção ativa os itens específicos do bloco F. Itens de tipo não selecionado ficam inaplicáveis e saem do denominador.</p>
+      <div class="tipos" id="tipos"></div>
+    </section>
+
     <section class="controles">
+      <h2>3. Laudo</h2>
       <button id="btn-arquivo" class="btn">Escolher laudo [PDF]…</button>
       <span id="arquivo" class="arquivo">Nenhum laudo selecionado</span>
       <label class="check"><input type="checkbox" id="llm"> Pré-responder com modelo local [Ollama]</label>

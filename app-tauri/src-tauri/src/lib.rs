@@ -11,6 +11,7 @@ async fn analisar(
     app: tauri::AppHandle,
     caminho: String,
     llm: bool,
+    tipos: Vec<String>,
 ) -> Result<serde_json::Value, String> {
     let saida = app
         .path()
@@ -25,6 +26,10 @@ async fn analisar(
         "--saida".into(),
         saida.to_string_lossy().into_owned(),
     ];
+    if !tipos.is_empty() {
+        args.push("--tipos".into());
+        args.push(tipos.join(","));
+    }
     if llm {
         args.push("--llm".into());
     }

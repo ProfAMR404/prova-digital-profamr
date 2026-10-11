@@ -71,13 +71,21 @@ PISTAS = {
     "F1": ["extração forense", "cellebrite", "ufed"],
 }
 
-def prefill(texto, itens):
+def aplicavel(item, tipos):
+    t = item.get("tipos")
+    if not t:
+        return True
+    return any(x in tipos for x in t)
+
+def prefill(texto, itens, tipos):
     tl = texto.lower()
     estado = {}
     trechos = {}
     for b in itens["BLOCOS"]:
         for i in b["itens"]:
             estado[i["id"]] = None
+            if not aplicavel(i, tipos):
+                continue
             pistas = PISTAS.get(i["id"])
             if pistas:
                 for p in pistas:
@@ -115,14 +123,23 @@ def ollama_sugere(item, texto, modelo="gemma3:4b"):
         log("Ollama falhou no item " + item["id"] + ": " + str(e))
         return None
 
-def classificar(estado, itens):
+def classificar(estado, itens, tipos):
     portas = itens["portas"]
     quebra = itens["quebra"]
-    falhou = lambda ids: any(estado.get(i) in ("nd", "nao") for i in ids)
+    idx = {}
+    for b in itens["BLOCOS"]:
+        for i in b["itens"]:
+            idx[i["id"]] = i
+    vale = lambda i: i in idx and aplicavel(idx[i], tipos)
+    falhou = lambda ids: any(vale(i) and estado.get(i) in ("nd", "nao") for i in ids)
+    aplic = [i for i in idx if aplicavel(idx[i], tipos)]
     p1 = falhou(portas["porta1"])
     p2 = falhou(portas["porta2"])
     q = falhou(quebra)
-    pend = any(v is None for v in estado.values())
+    if not aplic:
+        return {"estado": "neutro", "titulo": "Selecione o tipo de prova",
+                "corpo": "Marque ao menos um tipo de prova em exame."}
+    pend = any(estado.get(i) is None for i in aplic)
     if pend:
         return {"estado": "provisorio", "titulo": "Diagnóstico provisório",
                 "corpo": "Há itens sem resposta. Confirme ou ajuste cada item para o veredito conclusivo."}
@@ -132,7 +149,7 @@ def classificar(estado, itens):
     if q:
         return {"estado": "quebra", "titulo": "Quebra da cadeia de custódia: até a imprestabilidade",
                 "corpo": "Com as duas portas presentes, há desconformidade que a verificação independente não supera. Escala do gabinete."}
-    if any(v in ("nd", "nao") for v in estado.values()):
+    if any(estado.get(i) in ("nd", "nao") for i in aplic):
         return {"estado": "arranhao", "titulo": "Arranhão da cadeia de custódia: desconto no peso",
                 "corpo": "Com as duas portas presentes, as desconformidades são superadas pela verificação independente, preservada a admissibilidade. Escala do gabinete."}
     return {"estado": "plena", "titulo": "Conformidade plena: elemento admissível",
@@ -146,7 +163,7 @@ def minutas(estado, itens):
                 out.append({"id": i["id"], "peso": i.get("peso"), "minuta": i["minuta"]})
     return out
 
-def analisar(caminho, saida, usar_llm):
+def analisar(caminho, saida, usar_llm, tipos):
     log("Lendo o laudo")
     texto = extrair_pdf(caminho)
     if len(texto.strip()) < 40:
@@ -155,12 +172,12 @@ def analisar(caminho, saida, usar_llm):
     log("Extraindo identificação")
     ident = extrair_identificacao(texto)
     log("Pré-respondendo por pistas")
-    estado, trechos = prefill(texto, itens)
+    estado, trechos = prefill(texto, itens, tipos)
     if usar_llm and ollama_disponivel():
         log("Refinando por modelo local")
         for b in itens["BLOCOS"]:
             for i in b["itens"]:
-                if estado[i["id"]] is None:
+                if estado[i["id"]] is None and aplicavel(i, tipos):
                     sug = ollama_sugere(i, texto)
                     if sug and sug.get("resposta") in ("sim", "nd", "nao", "na"):
                         estado[i["id"]] = sug["resposta"]
@@ -169,9 +186,10 @@ def analisar(caminho, saida, usar_llm):
     elif usar_llm:
         log("Ollama não encontrado em localhost:11434; mantendo só as pistas")
     log("Classificando")
-    veredito = classificar(estado, itens)
+    veredito = classificar(estado, itens, tipos)
     resultado = {
         "arquivo": os.path.basename(caminho),
+        "tipos": sorted(tipos),
         "identificacao": ident,
         "respostas": estado,
         "trechos": trechos,
@@ -194,9 +212,11 @@ def main():
     a.add_argument("pdf")
     a.add_argument("--saida", default=".")
     a.add_argument("--llm", action="store_true")
+    a.add_argument("--tipos", default="")
     args = ap.parse_args()
     if args.cmd == "analisar":
-        analisar(args.pdf, args.saida, args.llm)
+        tipos = set(x.strip() for x in args.tipos.split(",") if x.strip())
+        analisar(args.pdf, args.saida, args.llm, tipos)
     else:
         ap.print_help()
         sys.exit(2)
