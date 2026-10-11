@@ -39,7 +39,7 @@ jobs:
 
       - name: Gerar icones a partir da logo
         working-directory: app-tauri
-        run: npx @tauri-apps/cli icon src/assets/logo.png
+        run: npx @tauri-apps/cli icon src/assets/logo.png --fit contain
 
       - name: Build do instalador Tauri
         working-directory: app-tauri
