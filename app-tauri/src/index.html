@@ -20,6 +20,14 @@
     <p class="kicker">Cadeia de custódia da prova digital · penal · offline</p>
     <h1>Prova Digital</h1>
 
+    <div class="abas" role="tablist" aria-label="Seções">
+      <button class="aba on" id="t-caso" type="button">Caso</button>
+      <button class="aba" id="t-analise" type="button">Análise</button>
+      <button class="aba" id="t-saida" type="button">Saída</button>
+      <button class="aba" id="t-instrucoes" type="button">Instruções de uso</button>
+    </div>
+
+    <div id="p-caso">
     <section class="ficha">
       <h2>1. Ficha do caso</h2>
       <div class="grid-ficha">
@@ -41,7 +49,9 @@
       <p class="nota">A seleção ativa os itens específicos do bloco F. Itens de tipo não selecionado ficam inaplicáveis e saem do denominador.</p>
       <div class="tipos" id="tipos"></div>
     </section>
+    </div><!-- /p-caso -->
 
+    <div id="p-analise" hidden>
     <section class="controles">
       <h2>3. Laudo</h2>
       <button id="btn-arquivo" class="btn">Escolher laudo [PDF]…</button>
@@ -51,8 +61,6 @@
 
     <section class="acao">
       <button id="btn-analisar" class="btn primario">Analisar laudo</button>
-      <button id="btn-minutas" class="btn" disabled>Gerar minutas</button>
-      <button id="btn-exportar" class="btn" disabled>Exportar JSON</button>
       <span id="progresso" class="progresso">Pronto.</span>
     </section>
 
@@ -60,11 +68,45 @@
     <section id="veredito" class="veredito neutro" hidden></section>
 
     <section id="blocos" class="blocos"></section>
+    </div><!-- /p-analise -->
 
+    <div id="p-saida" hidden>
+    <section class="acao">
+      <button id="btn-minutas" class="btn" disabled>Gerar minutas</button>
+      <button id="btn-exportar" class="btn" disabled>Exportar JSON</button>
+    </section>
     <section class="saida" hidden id="saidaBox">
       <h2>Saída</h2>
       <textarea id="saida" class="saida-txt" spellcheck="false"></textarea>
     </section>
+    </div><!-- /p-saida -->
+
+    <div id="p-instrucoes" hidden>
+    <div class="instr">
+      <div class="disclaimer">
+        <div class="t">Isenção de responsabilidade</div>
+        <p>Ferramenta de apoio à decisão. Organiza a aferição da cadeia de custódia da prova digital segundo critérios do gabinete. Não emite laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. O resultado depende das respostas confirmadas pelo usuário e pressupõe a leitura integral do laudo.</p>
+      </div>
+      <h2>Para que serve</h2>
+      <p>Afere a cadeia de custódia de um vestígio digital a partir do laudo, pela escala do gabinete inexistência, arranhão e quebra, e redige minutas de fundamentação. A pré-resposta é sugestão; a confirmação é humana.</p>
+      <h2>Passo a passo</h2>
+      <div class="passo"><b>1. Caso.</b> Preencha a ficha na aba Caso: autos, classe, vara, arguido, imputação, etapa, perito, hipóteses.</div>
+      <div class="passo"><b>2. Tipo de prova.</b> Marque uma ou mais espécies. Os itens do bloco F só entram no cálculo para os tipos marcados; os demais ficam inaplicáveis.</div>
+      <div class="passo"><b>3. Laudo.</b> Na aba Análise, escolha o laudo em PDF e clique em Analisar laudo. A pré-resposta por pistas e, quando marcado, por modelo local é só sugestão.</div>
+      <div class="passo"><b>4. Confirme item a item.</b> Cada item tem quatro respostas: Conforme, Não documentado, Não conforme, Não aplicável. O padrão é pendente até a confirmação.</div>
+      <div class="passo"><b>5. Veredito.</b> Atualiza ao vivo pela escala. Conclusivo só com todos os itens aplicáveis respondidos.</div>
+      <div class="passo"><b>6. Saída.</b> Na aba Saída, gere as minutas e exporte o caso em JSON.</div>
+      <h2>A escala</h2>
+      <ul>
+        <li><b>Inexistência</b>: falta uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem]. Inadmissibilidade integral.</li>
+        <li><b>Arranhão</b>: com as duas portas presentes, desconformidade que a verificação independente supera. Desconto no peso probatório.</li>
+        <li><b>Quebra</b>: com as duas portas presentes, desconformidade que a verificação independente não supera. Até a imprestabilidade.</li>
+      </ul>
+      <p>Escala do gabinete, não tese de tribunal nem doutrina de terceiro.</p>
+      <h2>Privacidade</h2>
+      <p>Tudo roda na máquina, nada é enviado a servidor. Não insira dado sigiloso em computador compartilhado ou público.</p>
+    </div>
+    </div><!-- /p-instrucoes -->
 
     <p class="rodape">Offline · o laudo não sai da máquina · a pré-resposta é apoio, a confirmação é humana. Não é laudo nem parecer.</p>
   </main>

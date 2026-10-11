@@ -185,8 +185,21 @@ function escapar(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
+function mostrarAba(q) {
+  [["caso", "p-caso", "t-caso"], ["analise", "p-analise", "t-analise"], ["saida", "p-saida", "t-saida"], ["instrucoes", "p-instrucoes", "t-instrucoes"]].forEach(([k, p, t]) => {
+    const on = k === q;
+    el(p).hidden = !on;
+    el(t).classList.toggle("on", on);
+  });
+  window.scrollTo({ top: 0 });
+}
+
 el("btn-arquivo").addEventListener("click", escolherArquivo);
 el("btn-analisar").addEventListener("click", analisar);
-el("btn-minutas").addEventListener("click", gerarMinutas);
+el("btn-minutas").addEventListener("click", () => { gerarMinutas(); });
 el("btn-exportar").addEventListener("click", exportar);
+el("t-caso").addEventListener("click", () => mostrarAba("caso"));
+el("t-analise").addEventListener("click", () => mostrarAba("analise"));
+el("t-saida").addEventListener("click", () => mostrarAba("saida"));
+el("t-instrucoes").addEventListener("click", () => mostrarAba("instrucoes"));
 carregarItens();
