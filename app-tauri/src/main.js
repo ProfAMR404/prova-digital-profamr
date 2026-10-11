@@ -7,12 +7,12 @@ const fs = window.__TAURI__.fs;
 const el = (id) => document.getElementById(id);
 const ROTULOS = { sim: "Conforme", nd: "Não documentado", nao: "Não conforme", na: "Não aplicável" };
 const CAMPOS = ["autos", "classe", "vara", "arguido", "imp", "etapa", "perito", "data", "hac", "hdef"];
-const app = { laudo: null, nome: null, dados: null, estado: {}, ident: {}, trechos: {}, tipos: new Set() };
+const app = { laudo: null, nome: null, dados: null, estado: {}, obs: {}, sugestoes: {}, ident: {}, tipos: new Set() };
 
 async function carregarItens() {
   const r = await fetch("itens.json");
   app.dados = await r.json();
-  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => (app.estado[i.id] = null)));
+  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => { app.estado[i.id] = null; app.obs[i.id] = ""; }));
   montarTipos();
   renderBlocos();
 }
@@ -48,13 +48,19 @@ function renderBlocos() {
     const itens = b.itens
       .map((i) => {
         const ap = aplicavel(i);
-        const trecho = app.trechos[i.id] ? `<div class="trecho">Trecho: ${escapar(app.trechos[i.id])}</div>` : "";
+        const s = app.sugestoes[i.id];
+        const sug = s
+          ? `<div class="sugestao">Sugestão: <b>${ROTULOS[s.resposta] || "—"}</b> ${s.pagina ? "[pág. " + s.pagina + "]" : "[" + (s.confianca || "indício") + "]"}
+               <button type="button" class="aplicar" data-id="${i.id}" data-resp="${s.resposta}">Aplicar</button>
+               ${s.trecho ? `<div class="strecho">${escapar(s.trecho)}</div>` : ""}</div>`
+          : "";
         const opts = ["", "sim", "nd", "nao", "na"]
           .map((k) => `<option value="${k}" ${app.estado[i.id] === k ? "selected" : ""}>${k ? ROTULOS[k] : "—"}</option>`)
           .join("");
         return `<div class="item ${ap ? "" : "inaplicavel"}">
-          <div class="txt"><span class="cod">${i.id}</span>${escapar(i.txt)}
-            <div class="fund">${escapar(i.fund || "")}</div>${trecho}</div>
+          <div class="txt"><p><span class="cod">${i.id}</span>${escapar(i.txt)}</p>
+            <div class="fund">${escapar(i.fund || "")}</div>${sug}
+            <input class="obs" data-id="${i.id}" ${ap ? "" : "disabled"} placeholder="Observação: onde consta no laudo [evento, página, trecho]" value="${escapar(app.obs[i.id] || "")}"></div>
           <select data-id="${i.id}" class="resp" ${ap ? "" : "disabled"}>${opts}</select>
         </div>`;
       })
@@ -62,8 +68,17 @@ function renderBlocos() {
     return `<section class="bloco"><h3>${escapar(b.titulo)}</h3>${itens}</section>`;
   }).join("");
   c.querySelectorAll("select.resp").forEach((s) =>
-    s.addEventListener("change", (e) => {
-      app.estado[e.target.dataset.id] = e.target.value || null;
+    s.addEventListener("change", (e) => { app.estado[e.target.dataset.id] = e.target.value || null; atualizarVeredito(); })
+  );
+  c.querySelectorAll("input.obs").forEach((o) =>
+    o.addEventListener("input", (e) => { app.obs[e.target.dataset.id] = e.target.value; })
+  );
+  c.querySelectorAll("button.aplicar").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id, r = e.target.dataset.resp;
+      app.estado[id] = r;
+      const sel = c.querySelector(`select.resp[data-id="${id}"]`);
+      if (sel) sel.value = r;
       atualizarVeredito();
     })
   );
@@ -75,12 +90,11 @@ function classificar() {
   d.BLOCOS.forEach((b) => b.itens.forEach((i) => (idx[i.id] = i)));
   const vale = (id) => idx[id] && aplicavel(idx[id]);
   const falhou = (ids) => ids.some((i) => vale(i) && ["nd", "nao"].includes(app.estado[i]));
-  // só itens aplicáveis entram no cálculo
   const aplicaveis = [];
   d.BLOCOS.forEach((b) => b.itens.forEach((i) => { if (aplicavel(i)) aplicaveis.push(i.id); }));
+  if (app.tipos.size === 0)
+    return { estado: "neutro", titulo: "Selecione o tipo de prova", corpo: "Na aba Caso, marque ao menos um tipo de prova em exame." };
   const pend = aplicaveis.some((id) => app.estado[id] === null);
-  if (aplicaveis.length === 0)
-    return { estado: "neutro", titulo: "Selecione o tipo de prova", corpo: "Marque ao menos um tipo de prova em exame e ingira o laudo." };
   if (pend)
     return { estado: "neutro", titulo: "Diagnóstico provisório", corpo: "Confirme ou ajuste cada item aplicável para o veredito conclusivo." };
   if (falhou(d.portas.porta1) || falhou(d.portas.porta2))
@@ -125,21 +139,21 @@ async function escolherArquivo() {
 
 async function analisar() {
   if (!app.laudo) { el("progresso").textContent = "Escolha um laudo primeiro."; return; }
-  if (app.tipos.size === 0) { el("progresso").textContent = "Marque o tipo de prova em exame."; return; }
+  if (app.tipos.size === 0) { el("progresso").textContent = "Marque o tipo de prova na aba Caso."; return; }
   el("btn-analisar").disabled = true;
   el("progresso").textContent = "Iniciando…";
   const parar = await listen("progresso", (ev) => (el("progresso").textContent = ev.payload));
   try {
     const res = await invoke("analisar", { caminho: app.laudo, llm: el("llm").checked, tipos: [...app.tipos] });
     app.ident = res.identificacao || {};
-    app.trechos = res.trechos || {};
-    Object.keys(app.estado).forEach((k) => (app.estado[k] = (res.respostas && res.respostas[k]) || null));
+    app.sugestoes = res.sugestoes || {};
+    if (app.ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = app.ident.processo;
     renderIdent();
     renderBlocos();
     atualizarVeredito();
     el("btn-minutas").disabled = false;
     el("btn-exportar").disabled = false;
-    el("progresso").textContent = "Pré-resposta pronta. Confira item a item.";
+    el("progresso").textContent = "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
   } catch (e) {
     el("progresso").textContent = "Falha: " + e;
   } finally {
@@ -155,14 +169,16 @@ function gerarMinutas() {
     b.itens.forEach((i) => {
       if (aplicavel(i) && ["nd", "nao"].includes(app.estado[i.id]) && i.minuta) {
         n++;
-        t += `[${i.id}] ${i.minuta}\n\n`;
+        t += `[${i.id}] ${i.minuta}\n`;
+        if (app.obs[i.id]) t += `(Referência nos autos: ${app.obs[i.id]})\n`;
+        t += "\n";
       }
     })
   );
   if (!n) t += "Nenhum item desconforme entre os aplicáveis.\n";
   el("saidaBox").hidden = false;
   el("saida").value = t;
-  el("saida").scrollIntoView({ behavior: "smooth" });
+  mostrarAba("saida");
 }
 
 async function exportar() {
@@ -172,6 +188,8 @@ async function exportar() {
     laudo: app.nome,
     identificacao: app.ident,
     respostas: app.estado,
+    observacoes: app.obs,
+    sugestoes: app.sugestoes,
     veredito: classificar(),
   };
   const destino = await dialog.save({ defaultPath: "analise-prova-digital.json", filters: [{ name: "JSON", extensions: ["json"] }] });
@@ -196,7 +214,7 @@ function mostrarAba(q) {
 
 el("btn-arquivo").addEventListener("click", escolherArquivo);
 el("btn-analisar").addEventListener("click", analisar);
-el("btn-minutas").addEventListener("click", () => { gerarMinutas(); });
+el("btn-minutas").addEventListener("click", gerarMinutas);
 el("btn-exportar").addEventListener("click", exportar);
 el("t-caso").addEventListener("click", () => mostrarAba("caso"));
 el("t-analise").addEventListener("click", () => mostrarAba("analise"));

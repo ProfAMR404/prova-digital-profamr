@@ -38,7 +38,13 @@ h2{font-family:var(--ui);font-size:.8rem;letter-spacing:.08em;text-transform:upp
 .item .cod{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ouro2);font-weight:700;margin-right:6px}
 .item .txt{font-size:14px;line-height:1.45}
 .item .fund{font-family:var(--ui);font-size:11.5px;color:var(--titulo);margin-top:3px}
-.item .trecho{font-family:var(--ui);font-size:11.5px;color:var(--ouro2);margin-top:3px}
+.item .sugestao{font-family:var(--ui);font-size:11.5px;color:var(--titulo);background:#FCFAF4;border-left:3px solid var(--ouro);border-radius:4px;padding:5px 8px;margin-top:5px}
+.item .sugestao b{color:var(--ouro2)}
+.item .strecho{font-style:italic;color:var(--titulo);margin-top:2px}
+button.aplicar{font-family:var(--ui);font-size:10.5px;font-weight:700;padding:1px 7px;margin-left:6px;border:1px solid var(--ouro2);border-radius:10px;background:#fff;color:var(--ouro2);cursor:pointer}
+button.aplicar:hover{background:var(--ouro2);color:#fff}
+.item .obs{width:100%;font-family:var(--ui);font-size:12px;padding:5px 7px;margin-top:6px;border:1px dashed var(--bd);border-radius:4px;background:#FCFCFA;color:var(--ink)}
+.item .obs:focus{outline:2px solid var(--ouro);outline-offset:1px}
 select.resp{font-family:var(--ui);font-size:13px;padding:6px 8px;border:1px solid var(--bd);border-radius:5px;background:#fff}
 .saida-txt{width:100%;min-height:260px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.55;padding:12px;border:1px solid var(--bd);border-radius:6px;background:#FCFCFA;white-space:pre-wrap}
 .rodape{font-family:var(--ui);font-size:11.5px;color:#8A8880;margin-top:26px;padding-top:12px;border-top:1px solid var(--bd)}
