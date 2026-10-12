@@ -120,12 +120,57 @@ function lerCaso() {
   return caso;
 }
 
-function renderIdent() {
-  const i = app.ident;
-  const box = el("ident");
-  const linhas = Object.keys(i).map((k) => `<span><b>${k}:</b> ${escapar(String(i[k]))}</span>`).join("");
-  box.hidden = Object.keys(i).length === 0;
-  box.innerHTML = linhas || "";
+const IDENT_MAP = { processo: "i-processo", perito: "i-perito", imei: "i-imei", serie: "i-serie", lacre: "i-lacre", hash: "i-hash", conta: "i-conta", provedor: "i-provedor", ordem_judicial: "i-ordem" };
+
+function preencherIdent(ident) {
+  el("ident-box").hidden = false;
+  Object.keys(IDENT_MAP).forEach((k) => {
+    const inp = el(IDENT_MAP[k]);
+    if (inp && ident[k] && !inp.value) inp.value = ident[k];
+  });
+  validarIdent();
+}
+
+function lerIdent() {
+  const out = {};
+  Object.keys(IDENT_MAP).forEach((k) => { const e = el(IDENT_MAP[k]); const v = e && e.value.trim(); if (v) out[k] = v; });
+  return out;
+}
+
+function validaProcesso(v) {
+  const d = (v || "").replace(/\D/g, "");
+  if (d.length !== 20) return null;
+  const base = BigInt(d.slice(0, 7) + d.slice(9) + "00");
+  return 98n - (base % 97n) === BigInt(d.slice(7, 9));
+}
+function validaIMEI(v) {
+  const d = (v || "").replace(/\D/g, "");
+  if (d.length === 14) return null;
+  if (d.length !== 15) return false;
+  let s = 0;
+  for (let i = 0; i < 15; i++) { let n = +d[i]; if (i % 2 === 1) { n *= 2; if (n > 9) n -= 9; } s += n; }
+  return s % 10 === 0;
+}
+function tipoHash(v) {
+  const h = (v || "").replace(/\s/g, "");
+  if (!h) return "";
+  if (!/^[0-9a-f]+$/i.test(h)) return "hex inválido";
+  const m = { 32: "MD5 [legado]", 40: "SHA-1 [legado]", 64: "SHA-256", 128: "SHA-512" };
+  return m[h.length] || "comprimento atípico";
+}
+function marca(span, estado, texto) {
+  if (!span) return;
+  span.className = "val " + (estado === true ? "ok" : estado === false ? "err" : "");
+  span.textContent = texto;
+}
+function validarIdent() {
+  const p = validaProcesso(el("i-processo").value);
+  marca(el("v-processo"), p, p === true ? "[CNJ ok]" : p === false ? "[conferir CNJ]" : "");
+  const im = validaIMEI(el("i-imei").value);
+  marca(el("v-imei"), im, im === true ? "[IMEI ok]" : im === false ? "[IMEI inválido]" : "");
+  const th = tipoHash(el("i-hash").value);
+  const okh = th && th.indexOf("inválido") < 0 && th.indexOf("atípico") < 0;
+  marca(el("v-hash"), th ? (okh ? true : false) : null, th ? "[" + th + "]" : "");
 }
 
 async function escolherArquivo() {
@@ -148,7 +193,7 @@ async function analisar() {
     app.ident = res.identificacao || {};
     app.sugestoes = res.sugestoes || {};
     if (app.ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = app.ident.processo;
-    renderIdent();
+    preencherIdent(app.ident);
     renderBlocos();
     atualizarVeredito();
     el("btn-minutas").disabled = false;
@@ -186,7 +231,7 @@ async function exportar() {
     caso: lerCaso(),
     tipos: [...app.tipos],
     laudo: app.nome,
-    identificacao: app.ident,
+    identificacao: lerIdent(),
     respostas: app.estado,
     observacoes: app.obs,
     sugestoes: app.sugestoes,
@@ -220,4 +265,5 @@ el("t-caso").addEventListener("click", () => mostrarAba("caso"));
 el("t-analise").addEventListener("click", () => mostrarAba("analise"));
 el("t-saida").addEventListener("click", () => mostrarAba("saida"));
 el("t-instrucoes").addEventListener("click", () => mostrarAba("instrucoes"));
+["i-processo", "i-imei", "i-hash"].forEach((id) => { const e = el(id); if (e) e.addEventListener("input", validarIdent); });
 carregarItens();
