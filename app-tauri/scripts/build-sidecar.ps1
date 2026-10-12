@@ -7,12 +7,32 @@ Write-Host ">> Instalando dependencias de build do sidecar" -ForegroundColor Cya
 python -m pip install --upgrade pip pyinstaller
 python -m pip install -r requirements.txt
 
+# Localiza a instalacao do Tesseract para embutir no executavel [OCR offline].
+$tessDir = $env:TESSERACT_DIR
+if (-not $tessDir) { $tessDir = "C:\Program Files\Tesseract-OCR" }
+
+$pyArgs = @(
+  "--noconfirm", "--clean", "--onefile", "--name", "prova-digital-engine",
+  "--collect-all", "pdfplumber",
+  "--collect-all", "pdfminer",
+  "--collect-all", "fitz",
+  "--hidden-import", "pytesseract",
+  "--hidden-import", "PIL",
+  "--hidden-import", "PIL.Image",
+  "--add-data", "dados;dados"
+)
+
+if (Test-Path (Join-Path $tessDir "tesseract.exe")) {
+  Write-Host ">> Embutindo Tesseract de $tessDir" -ForegroundColor Cyan
+  $pyArgs += @("--add-data", "$tessDir;tesseract")
+} else {
+  Write-Warning "Tesseract nao encontrado em $tessDir; o app sera gerado sem OCR embutido."
+}
+
+$pyArgs += "engine_entry.py"
+
 Write-Host ">> Empacotando o motor com PyInstaller [onefile]" -ForegroundColor Cyan
-pyinstaller --noconfirm --clean --onefile --name prova-digital-engine `
-  --collect-all pdfplumber `
-  --collect-all pdfminer `
-  --add-data "dados;dados" `
-  engine_entry.py
+& pyinstaller @pyArgs
 
 $triple = (rustc -Vv | Select-String '^host: ').ToString().Replace('host: ','').Trim()
 $dest = "app-tauri\src-tauri\binaries"

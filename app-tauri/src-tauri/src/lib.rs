@@ -105,6 +105,7 @@ async fn analisar(
     app: tauri::AppHandle,
     caminho: String,
     llm: bool,
+    ocr: bool,
     tipos: Vec<String>,
 ) -> Result<serde_json::Value, String> {
     let saida = app
@@ -126,6 +127,9 @@ async fn analisar(
     }
     if llm {
         args.push("--llm".into());
+    }
+    if ocr {
+        args.push("--ocr".into());
     }
 
     let sidecar = app

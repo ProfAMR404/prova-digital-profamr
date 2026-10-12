@@ -29,6 +29,17 @@ jobs:
         with:
           workspaces: "app-tauri/src-tauri -> target"
 
+      - name: Instalar Tesseract OCR e idioma portugues
+        shell: pwsh
+        run: |
+          choco install tesseract --no-progress -y
+          $tessData = "C:\Program Files\Tesseract-OCR\tessdata"
+          $base = "https://github.com/tesseract-ocr/tessdata_fast/raw/main"
+          Invoke-WebRequest -Uri "$base/por.traineddata" -OutFile "$tessData\por.traineddata"
+          Invoke-WebRequest -Uri "$base/osd.traineddata" -OutFile "$tessData\osd.traineddata"
+          & "C:\Program Files\Tesseract-OCR\tesseract.exe" --version
+          & "C:\Program Files\Tesseract-OCR\tesseract.exe" --list-langs
+
       - name: Gerar o sidecar (motor Python)
         shell: pwsh
         run: powershell -ExecutionPolicy Bypass -File app-tauri/scripts/build-sidecar.ps1

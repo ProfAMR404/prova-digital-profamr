@@ -1,7 +1,10 @@
-# Motor da Prova Digital ProfAMR [sidecar]. Extracao de PDF; Ollama via HTTP local
-# [sem dependencia extra]. OCR de laudo escaneado fica para versao futura.
+# Motor da Prova Digital ProfAMR [sidecar]. Extracao de PDF, OCR de laudo
+# escaneado e Ollama via HTTP local. Tudo roda offline na maquina do usuario.
 pdfplumber>=0.11
-# Alternativa de extracao, usada como fallback:
-# PyMuPDF>=1.24
+PyMuPDF>=1.24
+pytesseract>=0.3.10
+Pillow>=10.0
 # Empacotar como executavel:
 # pyinstaller>=6.0
+# O binario do Tesseract e os dados de idioma sao embutidos no build [CI],
+# nao via pip; ver app-tauri/scripts/build-sidecar.ps1.

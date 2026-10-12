@@ -78,6 +78,7 @@
       <h2>Laudo em análise</h2>
       <button id="btn-arquivo" class="btn">Escolher laudo [PDF]…</button>
       <span id="arquivo" class="arquivo">Nenhum laudo selecionado</span>
+      <label class="check"><input type="checkbox" id="ocr" checked> Reconhecer texto de laudo escaneado [OCR]</label>
       <label class="check"><input type="checkbox" id="llm"> Pré-responder com modelo local [Ollama]</label>
     </section>
 
@@ -127,7 +128,7 @@
       <h2>Passo a passo</h2>
       <div class="passo"><b>1. Caso.</b> Preencha a ficha na aba Caso: autos, classe, vara, arguido, imputação, etapa, perito, hipóteses.</div>
       <div class="passo"><b>2. Tipo de prova.</b> Marque uma ou mais espécies. Os itens do bloco F só entram no cálculo para os tipos marcados; os demais ficam inaplicáveis.</div>
-      <div class="passo"><b>3. Laudo.</b> Na aba Análise, escolha o laudo em PDF e clique em Analisar laudo. A pré-resposta por pistas e, quando marcado, por modelo local é só sugestão.</div>
+      <div class="passo"><b>3. Laudo.</b> Na aba Análise, escolha o laudo em PDF e clique em Analisar laudo. Laudo escaneado sem camada de texto é lido por OCR embutido, em português; desmarque OCR para acelerar quando o PDF já tem texto. A pré-resposta por pistas e, quando marcado, por modelo local é só sugestão.</div>
       <div class="passo"><b>4. Confirme item a item.</b> Cada item tem quatro respostas: Conforme, Não documentado, Não conforme, Não aplicável. O padrão é pendente até a confirmação.</div>
       <div class="passo"><b>5. Veredito.</b> Atualiza ao vivo pela escala. Conclusivo só com todos os itens aplicáveis respondidos.</div>
       <div class="passo"><b>6. Saída.</b> Na aba Saída, gere as minutas e exporte o caso em JSON.</div>

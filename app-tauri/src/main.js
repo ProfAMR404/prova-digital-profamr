@@ -370,9 +370,10 @@ async function analisar() {
   el("progresso").textContent = "Iniciando…";
   const parar = await listen("progresso", (ev) => (el("progresso").textContent = ev.payload));
   try {
-    const res = await invoke("analisar", { caminho: app.laudo, llm: el("llm").checked, tipos: [...app.tipos] });
+    const res = await invoke("analisar", { caminho: app.laudo, llm: el("llm").checked, ocr: el("ocr").checked, tipos: [...app.tipos] });
     app.sugestoes = res.sugestoes || {};
     const ident = res.identificacao || {};
+    const nocr = (res.paginas_ocr || []).length;
     if (ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = ident.processo;
     preencherIdent(ident);
     const L = app.laudos[app.ativo];
@@ -382,7 +383,7 @@ async function analisar() {
     renderLaudos();
     el("btn-minutas").disabled = false;
     el("btn-exportar").disabled = false;
-    el("progresso").textContent = "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
+    el("progresso").textContent = (nocr ? "OCR recuperou texto em " + nocr + " página(s) escaneada(s). " : "") + "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
   } catch (e) {
     el("progresso").textContent = "Falha: " + e;
   } finally {
