@@ -28,6 +28,12 @@
     </div>
 
     <div id="p-caso">
+    <section class="acao caso-barra">
+      <button id="btn-salvar-caso" class="btn primario">Salvar caso</button>
+      <button id="btn-novo-caso" class="btn">Novo caso</button>
+      <span id="caso-status" class="arquivo"></span>
+    </section>
+
     <section class="ficha">
       <h2>1. Ficha do caso</h2>
       <div class="grid-ficha">
@@ -49,11 +55,27 @@
       <p class="nota">A seleção ativa os itens específicos do bloco F. Itens de tipo não selecionado ficam inaplicáveis e saem do denominador.</p>
       <div class="tipos" id="tipos"></div>
     </section>
+
+    <section class="casos">
+      <h2>3. Casos salvos</h2>
+      <p class="nota">Os casos ficam gravados nesta máquina, nada é enviado a servidor. Clique em um caso para carregar.</p>
+      <div id="casos-lista"></div>
+    </section>
     </div><!-- /p-caso -->
 
     <div id="p-analise" hidden>
+    <section class="laudos-caso">
+      <h2>Laudos deste caso</h2>
+      <div class="acao">
+        <select id="laudo-sel" class="resp"></select>
+        <button id="btn-novo-laudo" class="btn">Adicionar laudo</button>
+        <button id="btn-excluir-laudo" class="btn" disabled>Excluir laudo</button>
+      </div>
+      <p class="nota">Cada laudo guarda as próprias respostas, identificação e veredito. O caso reúne os laudos.</p>
+    </section>
+
     <section class="controles">
-      <h2>3. Laudo</h2>
+      <h2>Laudo em análise</h2>
       <button id="btn-arquivo" class="btn">Escolher laudo [PDF]…</button>
       <span id="arquivo" class="arquivo">Nenhum laudo selecionado</span>
       <label class="check"><input type="checkbox" id="llm"> Pré-responder com modelo local [Ollama]</label>

@@ -7,16 +7,35 @@ const fs = window.__TAURI__.fs;
 const el = (id) => document.getElementById(id);
 const ROTULOS = { sim: "Conforme", nd: "Não documentado", nao: "Não conforme", na: "Não aplicável" };
 const CAMPOS = ["autos", "classe", "vara", "arguido", "imp", "etapa", "perito", "data", "hac", "hdef"];
-const app = { laudo: null, nome: null, dados: null, estado: {}, obs: {}, sugestoes: {}, ident: {}, tipos: new Set() };
+const IDENT_MAP = { processo: "i-processo", perito: "i-perito", imei: "i-imei", serie: "i-serie", lacre: "i-lacre", hash: "i-hash", conta: "i-conta", provedor: "i-provedor", ordem_judicial: "i-ordem" };
+
+// app.laudos: lista de laudos do caso. app.ativo: indice do laudo em edicao.
+// estado/obs/sugestoes apontam para o laudo ativo; ident fica nos inputs do DOM.
+const app = { id: null, dados: null, tipos: new Set(), laudos: [], ativo: -1, laudo: null, nome: null, estado: {}, obs: {}, sugestoes: {} };
+
+function novoId() {
+  return "c" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+function estadoVazio() {
+  const e = {}, o = {};
+  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => { e[i.id] = null; o[i.id] = ""; }));
+  return { estado: e, obs: o };
+}
+
+function novoLaudoObj() {
+  const z = estadoVazio();
+  return { id: novoId(), nome: null, caminho: null, data: null, estado: z.estado, obs: z.obs, sugestoes: {}, ident: {} };
+}
 
 async function carregarItens() {
   const r = await fetch("itens.json");
   app.dados = await r.json();
-  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => { app.estado[i.id] = null; app.obs[i.id] = ""; }));
-  montarTipos();
-  renderBlocos();
+  novoCaso();
+  listarCasos();
 }
 
+// ---- tipos de prova -------------------------------------------------------
 function montarTipos() {
   const c = el("tipos");
   c.innerHTML = app.dados.TIPOS.map(
@@ -42,6 +61,7 @@ function aplicavel(item) {
   return item.tipos.some((t) => app.tipos.has(t));
 }
 
+// ---- blocos e itens -------------------------------------------------------
 function renderBlocos() {
   const c = el("blocos");
   c.innerHTML = app.dados.BLOCOS.map((b) => {
@@ -84,6 +104,7 @@ function renderBlocos() {
   );
 }
 
+// ---- classificacao e veredito ---------------------------------------------
 function classificar() {
   const d = app.dados;
   const idx = {};
@@ -114,20 +135,31 @@ function atualizarVeredito() {
   box.innerHTML = `<b>${v.titulo}</b><span>${v.corpo}</span><em>Escala do gabinete, não tese de tribunal.</em>`;
 }
 
+// ---- ficha do caso --------------------------------------------------------
 function lerCaso() {
   const caso = {};
   CAMPOS.forEach((k) => (caso[k] = (el("k-" + k) && el("k-" + k).value) || ""));
   return caso;
 }
 
-const IDENT_MAP = { processo: "i-processo", perito: "i-perito", imei: "i-imei", serie: "i-serie", lacre: "i-lacre", hash: "i-hash", conta: "i-conta", provedor: "i-provedor", ordem_judicial: "i-ordem" };
+function setCaso(caso) {
+  caso = caso || {};
+  CAMPOS.forEach((k) => { const e = el("k-" + k); if (e) e.value = caso[k] || ""; });
+}
 
+// ---- identificacao do exame ----------------------------------------------
 function preencherIdent(ident) {
   el("ident-box").hidden = false;
   Object.keys(IDENT_MAP).forEach((k) => {
     const inp = el(IDENT_MAP[k]);
     if (inp && ident[k] && !inp.value) inp.value = ident[k];
   });
+  validarIdent();
+}
+
+function setIdent(ident) {
+  ident = ident || {};
+  Object.keys(IDENT_MAP).forEach((k) => { const inp = el(IDENT_MAP[k]); if (inp) inp.value = ident[k] || ""; });
   validarIdent();
 }
 
@@ -173,12 +205,161 @@ function validarIdent() {
   marca(el("v-hash"), th ? (okh ? true : false) : null, th ? "[" + th + "]" : "");
 }
 
+// ---- laudos do caso -------------------------------------------------------
+function capturarAtivo() {
+  if (app.ativo < 0 || !app.laudos[app.ativo]) return;
+  const L = app.laudos[app.ativo];
+  L.estado = app.estado;
+  L.obs = app.obs;
+  L.sugestoes = app.sugestoes;
+  L.caminho = app.laudo;
+  L.nome = app.nome;
+  L.ident = lerIdent();
+}
+
+function aplicarAtivo() {
+  const L = app.laudos[app.ativo];
+  app.estado = L.estado || {};
+  app.obs = L.obs || {};
+  app.sugestoes = L.sugestoes || {};
+  app.laudo = L.caminho || null;
+  app.nome = L.nome || null;
+  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => {
+    if (!(i.id in app.estado)) app.estado[i.id] = null;
+    if (!(i.id in app.obs)) app.obs[i.id] = "";
+  }));
+  el("arquivo").textContent = app.nome || "Nenhum laudo selecionado";
+  const temIdent = L.ident && Object.keys(L.ident).length > 0;
+  el("ident-box").hidden = !temIdent;
+  setIdent(L.ident || {});
+  renderBlocos();
+  atualizarVeredito();
+  renderLaudos();
+}
+
+function renderLaudos() {
+  const sel = el("laudo-sel");
+  sel.innerHTML = app.laudos
+    .map((L, i) => `<option value="${i}" ${i === app.ativo ? "selected" : ""}>Laudo ${i + 1}${L.nome ? ": " + escapar(L.nome) : " [sem arquivo]"}</option>`)
+    .join("");
+  el("btn-excluir-laudo").disabled = app.laudos.length <= 1;
+}
+
+function novoLaudo() {
+  capturarAtivo();
+  app.laudos.push(novoLaudoObj());
+  app.ativo = app.laudos.length - 1;
+  el("btn-minutas").disabled = true;
+  el("btn-exportar").disabled = true;
+  aplicarAtivo();
+}
+
+function trocarLaudo(i) {
+  capturarAtivo();
+  app.ativo = i;
+  aplicarAtivo();
+}
+
+function excluirLaudo() {
+  if (app.laudos.length <= 1) return;
+  app.laudos.splice(app.ativo, 1);
+  app.ativo = Math.max(0, app.ativo - 1);
+  aplicarAtivo();
+}
+
+// ---- persistencia de casos ------------------------------------------------
+function novoCaso() {
+  app.id = null;
+  app.tipos = new Set();
+  app.laudos = [novoLaudoObj()];
+  app.ativo = 0;
+  setCaso({});
+  montarTipos();
+  el("btn-minutas").disabled = true;
+  el("btn-exportar").disabled = true;
+  el("caso-status").textContent = "Caso novo, ainda não salvo.";
+  aplicarAtivo();
+}
+
+async function salvarCaso() {
+  capturarAtivo();
+  if (!app.id) app.id = novoId();
+  const dados = {
+    id: app.id,
+    atualizado: new Date().toISOString(),
+    caso: lerCaso(),
+    tipos: [...app.tipos],
+    ativo: app.ativo,
+    laudos: app.laudos.map((L) => ({ id: L.id, nome: L.nome, caminho: L.caminho, data: L.data, estado: L.estado, obs: L.obs, sugestoes: L.sugestoes, ident: L.ident })),
+  };
+  try {
+    app.id = await invoke("salvar_caso", { id: app.id, dados });
+    el("caso-status").textContent = "Caso salvo na máquina [" + new Date().toLocaleString("pt-BR") + "].";
+    listarCasos();
+  } catch (e) {
+    el("caso-status").textContent = "Falha ao salvar: " + e;
+  }
+}
+
+async function listarCasos() {
+  let lista = [];
+  try { lista = await invoke("listar_casos"); } catch (e) { lista = []; }
+  const c = el("casos-lista");
+  if (!lista.length) { c.innerHTML = `<p class="nota">Nenhum caso salvo ainda. Preencha a ficha e use Salvar caso.</p>`; return; }
+  c.innerHTML = lista
+    .map((x) => `<div class="caso-row">
+        <button type="button" class="link-caso" data-id="${escapar(x.id)}">${escapar(x.autos || "[sem autos]")} · ${escapar(x.arguido || "[sem arguido]")}</button>
+        <span class="caso-meta">${x.nlaudos} laudo(s) · ${escapar(fmtData(x.atualizado))}</span>
+        <button type="button" class="btn-excluir" data-id="${escapar(x.id)}">Excluir</button>
+      </div>`)
+    .join("");
+  c.querySelectorAll(".link-caso").forEach((b) => b.addEventListener("click", (e) => carregarCasoId(e.target.dataset.id)));
+  c.querySelectorAll(".btn-excluir").forEach((b) => b.addEventListener("click", (e) => excluirCasoId(e.target.dataset.id)));
+}
+
+async function carregarCasoId(id) {
+  let v;
+  try { v = await invoke("carregar_caso", { id }); } catch (e) { el("caso-status").textContent = "Falha ao carregar: " + e; return; }
+  app.id = v.id || id;
+  setCaso(v.caso || {});
+  app.tipos = new Set(v.tipos || []);
+  montarTipos();
+  const z = estadoVazio();
+  app.laudos = (v.laudos && v.laudos.length ? v.laudos : [novoLaudoObj()]).map((L) => ({
+    id: L.id || novoId(), nome: L.nome || null, caminho: L.caminho || null, data: L.data || null,
+    estado: Object.assign({}, z.estado, L.estado || {}), obs: Object.assign({}, z.obs, L.obs || {}),
+    sugestoes: L.sugestoes || {}, ident: L.ident || {},
+  }));
+  app.ativo = typeof v.ativo === "number" && v.ativo >= 0 && v.ativo < app.laudos.length ? v.ativo : 0;
+  const temAnalise = app.laudos.some((L) => L.nome || Object.keys(L.sugestoes).length);
+  el("btn-minutas").disabled = !temAnalise;
+  el("btn-exportar").disabled = !temAnalise;
+  el("caso-status").textContent = "Caso carregado [" + fmtData(v.atualizado) + "].";
+  aplicarAtivo();
+  mostrarAba("caso");
+}
+
+async function excluirCasoId(id) {
+  try { await invoke("excluir_caso", { id }); } catch (e) { el("caso-status").textContent = "Falha ao excluir: " + e; return; }
+  if (app.id === id) { app.id = null; el("caso-status").textContent = "Caso excluído. A cópia aberta continua em edição até salvar de novo."; }
+  listarCasos();
+}
+
+function fmtData(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? "" : d.toLocaleString("pt-BR");
+}
+
+// ---- analise do laudo -----------------------------------------------------
 async function escolherArquivo() {
   const escolha = await dialog.open({ multiple: false, filters: [{ name: "PDF", extensions: ["pdf"] }] });
   if (escolha) {
     app.laudo = escolha;
     app.nome = escolha.replace(/^.*[\\/]/, "");
+    if (app.laudos[app.ativo]) { app.laudos[app.ativo].caminho = escolha; app.laudos[app.ativo].nome = app.nome; }
     el("arquivo").textContent = app.nome;
+    renderLaudos();
   }
 }
 
@@ -190,12 +371,15 @@ async function analisar() {
   const parar = await listen("progresso", (ev) => (el("progresso").textContent = ev.payload));
   try {
     const res = await invoke("analisar", { caminho: app.laudo, llm: el("llm").checked, tipos: [...app.tipos] });
-    app.ident = res.identificacao || {};
     app.sugestoes = res.sugestoes || {};
-    if (app.ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = app.ident.processo;
-    preencherIdent(app.ident);
+    const ident = res.identificacao || {};
+    if (ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = ident.processo;
+    preencherIdent(ident);
+    const L = app.laudos[app.ativo];
+    if (L) { L.sugestoes = app.sugestoes; L.data = new Date().toISOString(); L.ident = lerIdent(); }
     renderBlocos();
     atualizarVeredito();
+    renderLaudos();
     el("btn-minutas").disabled = false;
     el("btn-exportar").disabled = false;
     el("progresso").textContent = "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
@@ -207,8 +391,14 @@ async function analisar() {
   }
 }
 
+// ---- saida ----------------------------------------------------------------
 function gerarMinutas() {
-  let t = "MINUTAS DE FUNDAMENTAÇÃO · ITENS DESCONFORMES\n\n";
+  const caso = lerCaso();
+  let t = "MINUTAS DE FUNDAMENTAÇÃO · ITENS DESCONFORMES\n";
+  if (caso.autos) t += "Autos n. " + caso.autos + "\n";
+  if (caso.arguido) t += "Arguido: " + caso.arguido + "\n";
+  if (app.nome) t += "Laudo: " + app.nome + "\n";
+  t += "\n";
   let n = 0;
   app.dados.BLOCOS.forEach((b) =>
     b.itens.forEach((i) => {
@@ -227,14 +417,13 @@ function gerarMinutas() {
 }
 
 async function exportar() {
+  capturarAtivo();
   const dados = {
+    id: app.id,
     caso: lerCaso(),
     tipos: [...app.tipos],
-    laudo: app.nome,
-    identificacao: lerIdent(),
-    respostas: app.estado,
-    observacoes: app.obs,
-    sugestoes: app.sugestoes,
+    laudos: app.laudos.map((L) => ({ nome: L.nome, data: L.data, identificacao: L.ident, respostas: L.estado, observacoes: L.obs, sugestoes: L.sugestoes })),
+    laudoAtivo: app.nome,
     veredito: classificar(),
   };
   const destino = await dialog.save({ defaultPath: "analise-prova-digital.json", filters: [{ name: "JSON", extensions: ["json"] }] });
@@ -261,6 +450,11 @@ el("btn-arquivo").addEventListener("click", escolherArquivo);
 el("btn-analisar").addEventListener("click", analisar);
 el("btn-minutas").addEventListener("click", gerarMinutas);
 el("btn-exportar").addEventListener("click", exportar);
+el("btn-salvar-caso").addEventListener("click", salvarCaso);
+el("btn-novo-caso").addEventListener("click", novoCaso);
+el("btn-novo-laudo").addEventListener("click", novoLaudo);
+el("btn-excluir-laudo").addEventListener("click", excluirLaudo);
+el("laudo-sel").addEventListener("change", (e) => trocarLaudo(+e.target.value));
 el("t-caso").addEventListener("click", () => mostrarAba("caso"));
 el("t-analise").addEventListener("click", () => mostrarAba("analise"));
 el("t-saida").addEventListener("click", () => mostrarAba("saida"));
