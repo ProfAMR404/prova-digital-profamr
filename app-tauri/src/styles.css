@@ -92,4 +92,41 @@ select.resp{font-family:var(--ui);font-size:13px;padding:6px 8px;border:1px soli
 .btn-excluir:hover{background:var(--vermelho);color:#fff}
 .laudos-caso{margin:0 0 16px;border:1px solid var(--bd2);border-radius:6px;padding:10px 14px;background:#FCFCFA}
 .laudos-caso #laudo-sel{min-width:240px;max-width:100%}
+.relatorio{margin:6px 0 0}
+.rel-doc{max-width:900px;margin:0 auto;color:var(--ink)}
+.rel-head{border-bottom:2px solid var(--ouro);padding-bottom:8px;margin:0 0 14px}
+.rel-wm{font-family:var(--ui);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ouro2);font-weight:700}
+.rel-doc h1{font-family:var(--disp);font-size:1.5rem;font-weight:700;margin:4px 0 0}
+.rel-doc h3{font-family:var(--disp);font-size:1.15rem;font-weight:700;margin:18px 0 6px;color:var(--ink)}
+.rel-caso{border-collapse:collapse;width:100%;margin:0 0 10px}
+.rel-caso th{text-align:left;width:160px;font-family:var(--ui);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);vertical-align:top;padding:3px 10px 3px 0}
+.rel-caso td{font-size:14px;padding:3px 0}
+.rel-tipos{font-size:13.5px;margin:0 0 10px}
+.rel-laudo{border-top:1px solid var(--bd);padding-top:8px;margin:0 0 10px}
+.rel-vered{border-left:5px solid;border-radius:4px;padding:8px 12px;margin:4px 0 10px}
+.rel-vered b{display:block;font-size:14px}
+.rel-vered span{display:block;font-size:12.5px}
+.rel-vered.v-neutro{background:#FCFCFA;border-color:#8A8880;color:var(--titulo)}
+.rel-vered.v-verde{background:var(--verde-bg);border-color:var(--verde);color:var(--verde)}
+.rel-vered.v-amarelo{background:var(--amarelo-bg);border-color:var(--amarelo);color:var(--amarelo)}
+.rel-vered.v-laranja{background:var(--laranja-bg);border-color:var(--laranja);color:var(--laranja)}
+.rel-vered.v-vermelho{background:var(--vermelho-bg);border-color:var(--vermelho);color:var(--vermelho)}
+.rel-id,.rel-itens{border-collapse:collapse;width:100%;margin:0 0 10px;font-size:13px}
+.rel-id caption,.rel-itens caption{text-align:left;font-family:var(--ui);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--titulo);margin-bottom:3px}
+.rel-id th{text-align:left;width:140px;color:var(--titulo);font-weight:600;padding:2px 10px 2px 0;vertical-align:top}
+.rel-id td{padding:2px 0}
+.rel-itens th,.rel-itens td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}
+.rel-itens thead th{background:#FCFAF4;font-family:var(--ui);font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--titulo)}
+.rel-itens .cod{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ouro2);font-weight:700;white-space:nowrap}
+.rel-itens .r{font-weight:600;white-space:nowrap}
+.rel-itens .r-sim{color:var(--verde)}.rel-itens .r-nd{color:var(--amarelo)}.rel-itens .r-nao{color:var(--vermelho)}.rel-itens .r-na{color:var(--titulo)}
+.rel-rodape{font-family:var(--ui);font-size:11.5px;color:var(--titulo);border-top:1px solid var(--bd);margin-top:16px;padding-top:10px}
+.doc-txt{font-family:var(--corpo);font-size:14px;line-height:1.6;white-space:pre-wrap;color:var(--ink)}
 @media (max-width:760px){.item{grid-template-columns:1fr}.caso-row{grid-template-columns:1fr auto}.caso-meta{grid-column:1 / -1}}
+@media print{
+  body{background:#fff}
+  .marca,.filete,.abas,.kicker,h1,.acao,.nota,.controles,.laudos-caso,.ficha,.tipos-box,.casos,#veredito,#blocos,#ident-box,.rodape,#saidaBox{display:none !important}
+  #p-saida,#relatorio{display:block !important}
+  .relatorio{margin:0}
+  .rel-doc{max-width:none}
+}

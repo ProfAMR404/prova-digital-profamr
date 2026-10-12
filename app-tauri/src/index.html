@@ -108,13 +108,19 @@
 
     <div id="p-saida" hidden>
     <section class="acao">
-      <button id="btn-minutas" class="btn" disabled>Gerar minutas</button>
+      <button id="btn-relatorio" class="btn" disabled>Relatório completo</button>
+      <button id="btn-termo" class="btn" disabled>Termo modelo</button>
+      <button id="btn-minutas" class="btn" disabled>Minutas</button>
       <button id="btn-exportar" class="btn" disabled>Exportar JSON</button>
+      <button id="btn-rmcr" class="btn" disabled>Exportar para o RMCr</button>
+      <button id="btn-imprimir" class="btn primario" hidden>Imprimir / Salvar PDF</button>
     </section>
+    <p class="nota">O relatório e o termo abrem para conferência. Imprimir / Salvar PDF usa a impressão do sistema; escolha Salvar como PDF. O termo é minuta editável, não decisão.</p>
     <section class="saida" hidden id="saidaBox">
       <h2>Saída</h2>
       <textarea id="saida" class="saida-txt" spellcheck="false"></textarea>
     </section>
+    <section id="relatorio" class="relatorio" hidden></section>
     </div><!-- /p-saida -->
 
     <div id="p-instrucoes" hidden>

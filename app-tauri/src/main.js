@@ -249,8 +249,7 @@ function novoLaudo() {
   capturarAtivo();
   app.laudos.push(novoLaudoObj());
   app.ativo = app.laudos.length - 1;
-  el("btn-minutas").disabled = true;
-  el("btn-exportar").disabled = true;
+  habilitarSaidas(false);
   aplicarAtivo();
 }
 
@@ -275,8 +274,7 @@ function novoCaso() {
   app.ativo = 0;
   setCaso({});
   montarTipos();
-  el("btn-minutas").disabled = true;
-  el("btn-exportar").disabled = true;
+  habilitarSaidas(false);
   el("caso-status").textContent = "Caso novo, ainda não salvo.";
   aplicarAtivo();
 }
@@ -332,8 +330,7 @@ async function carregarCasoId(id) {
   }));
   app.ativo = typeof v.ativo === "number" && v.ativo >= 0 && v.ativo < app.laudos.length ? v.ativo : 0;
   const temAnalise = app.laudos.some((L) => L.nome || Object.keys(L.sugestoes).length);
-  el("btn-minutas").disabled = !temAnalise;
-  el("btn-exportar").disabled = !temAnalise;
+  habilitarSaidas(temAnalise);
   el("caso-status").textContent = "Caso carregado [" + fmtData(v.atualizado) + "].";
   aplicarAtivo();
   mostrarAba("caso");
@@ -381,8 +378,7 @@ async function analisar() {
     renderBlocos();
     atualizarVeredito();
     renderLaudos();
-    el("btn-minutas").disabled = false;
-    el("btn-exportar").disabled = false;
+    habilitarSaidas(true);
     el("progresso").textContent = (nocr ? "OCR recuperou texto em " + nocr + " página(s) escaneada(s). " : "") + "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
   } catch (e) {
     el("progresso").textContent = "Falha: " + e;
@@ -412,8 +408,10 @@ function gerarMinutas() {
     })
   );
   if (!n) t += "Nenhum item desconforme entre os aplicáveis.\n";
-  el("saidaBox").hidden = false;
   el("saida").value = t;
+  el("saidaBox").hidden = false;
+  el("relatorio").hidden = true;
+  el("btn-imprimir").hidden = false;
   mostrarAba("saida");
 }
 
@@ -434,6 +432,202 @@ async function exportar() {
   }
 }
 
+// ---- saidas: relatorio, termo, PDF [Fase 5] -------------------------------
+function habilitarSaidas(on) {
+  ["btn-relatorio", "btn-termo", "btn-minutas", "btn-exportar", "btn-rmcr"].forEach((id) => { const b = el(id); if (b) b.disabled = !on; });
+  if (!on) { el("btn-imprimir").hidden = true; }
+}
+
+function nomeTipos() {
+  const m = {};
+  app.dados.TIPOS.forEach((t) => (m[t.id] = t.nome));
+  return [...app.tipos].map((t) => m[t] || t);
+}
+
+// Veredito de um laudo especifico [tipos sao do caso].
+function vereditoDe(laudo) {
+  const salvo = app.estado;
+  app.estado = laudo.estado || {};
+  const v = classificar();
+  app.estado = salvo;
+  return v;
+}
+
+function itensRespondidos(laudo) {
+  const linhas = [];
+  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => {
+    if (!aplicavel(i)) return;
+    const r = (laudo.estado || {})[i.id];
+    if (!r) return;
+    linhas.push({ id: i.id, txt: i.txt, resposta: ROTULOS[r] || r, chave: r, obs: (laudo.obs || {})[i.id] || "" });
+  }));
+  return linhas;
+}
+
+function gerarRelatorio() {
+  capturarAtivo();
+  const caso = lerCaso();
+  const cab = [
+    ["Autos n.", caso.autos], ["Classe", caso.classe], ["Vara / Órgão", caso.vara],
+    ["Arguido", caso.arguido], ["Imputação", caso.imp], ["Etapa", caso.etapa],
+    ["Perito / Órgão", caso.perito], ["Data", caso.data],
+  ].filter(([, v]) => v).map(([k, v]) => `<tr><th>${escapar(k)}</th><td>${escapar(v)}</td></tr>`).join("");
+  const tipos = nomeTipos();
+  let laudosHtml = "";
+  app.laudos.forEach((L, i) => {
+    const v = vereditoDe(L);
+    const ident = L.ident || {};
+    const idRows = Object.keys(IDENT_MAP).map((k) => ident[k] ? `<tr><th>${escapar(k)}</th><td>${escapar(ident[k])}</td></tr>` : "").join("");
+    const linhas = itensRespondidos(L);
+    const corpoItens = linhas.length
+      ? linhas.map((x) => `<tr><td class="cod">${escapar(x.id)}</td><td>${escapar(x.txt)}</td><td class="r r-${x.chave}">${escapar(x.resposta)}</td><td>${escapar(x.obs)}</td></tr>`).join("")
+      : `<tr><td colspan="4">Nenhum item respondido.</td></tr>`;
+    laudosHtml += `<section class="rel-laudo">
+      <h3>Laudo ${i + 1}${L.nome ? ": " + escapar(L.nome) : ""}</h3>
+      <div class="rel-vered v-${v.estado}"><b>${escapar(v.titulo)}</b><span>${escapar(v.corpo)}</span></div>
+      ${idRows ? `<table class="rel-id"><caption>Identificação</caption>${idRows}</table>` : ""}
+      <table class="rel-itens"><thead><tr><th>Cód.</th><th>Item</th><th>Resposta</th><th>Observação</th></tr></thead><tbody>${corpoItens}</tbody></table>
+    </section>`;
+  });
+  const html = `<div class="rel-doc">
+    <header class="rel-head"><span class="rel-wm">Prof. AMR</span><h1>Aferição da cadeia de custódia da prova digital</h1></header>
+    <table class="rel-caso">${cab || '<tr><td>Ficha do caso não preenchida.</td></tr>'}</table>
+    <p class="rel-tipos"><b>Tipo de prova em exame:</b> ${tipos.length ? escapar(tipos.join(", ")) : "não selecionado"}</p>
+    ${laudosHtml}
+    <p class="rel-rodape">Escala do gabinete: inexistência, arranhão e quebra. Documento de apoio à decisão, não laudo nem parecer. A confirmação de cada item é humana. Processamento local.</p>
+  </div>`;
+  el("relatorio").innerHTML = html;
+  el("relatorio").hidden = false;
+  el("saidaBox").hidden = true;
+  el("btn-imprimir").hidden = false;
+  mostrarAba("saida");
+}
+
+const CONSEQUENCIA = {
+  vermelho: "Reconhecida a inexistência da cadeia de custódia, pela falta de ao menos uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem], a prova é inadmissível na forma do art. 158-A do CPP, com o desentranhamento do elemento e das provas dele derivadas [CPP, art. 157, § 1º].",
+  laranja: "Reconhecida a quebra da cadeia de custódia, com as duas portas presentes mas desconformidade que a verificação independente não supera, o elemento é imprestável e fica excluído da valoração.",
+  amarelo: "Reconhecido o arranhão da cadeia de custódia, com as duas portas presentes e desconformidade superada pela verificação independente, preserva-se a admissibilidade e procede-se ao desconto no peso probatório na valoração do conjunto [CPP, art. 155].",
+  verde: "Reconhecida a conformidade plena da cadeia de custódia, o elemento é admissível e íntegro, sem reparo quanto à forma dos arts. 158-A a 158-F do CPP.",
+  neutro: "Aferição ainda não conclusiva. Confirme cada item aplicável antes de lavrar o termo.",
+};
+
+function termoModelo() {
+  capturarAtivo();
+  const caso = lerCaso();
+  const L = app.laudos[app.ativo] || {};
+  const v = vereditoDe(L);
+  let t = "TERMO DE AFERIÇÃO DA CADEIA DE CUSTÓDIA DA PROVA DIGITAL\n";
+  t += "[minuta de fundamentação, sujeita a revisão e complementação]\n\n";
+  if (caso.autos) t += "Autos n. " + caso.autos + "\n";
+  if (caso.classe) t += "Classe: " + caso.classe + "\n";
+  if (caso.vara) t += "Vara / Órgão: " + caso.vara + "\n";
+  if (caso.arguido) t += "Arguido: " + caso.arguido + "\n";
+  if (caso.imp) t += "Imputação: " + caso.imp + "\n";
+  t += "Tipo de prova em exame: " + (nomeTipos().join(", ") || "não selecionado") + "\n";
+  if (L.nome) t += "Laudo: " + L.nome + "\n";
+  const ident = L.ident || {};
+  const idTxt = Object.keys(IDENT_MAP).filter((k) => ident[k]).map((k) => k + " " + ident[k]).join("; ");
+  if (idTxt) t += "Identificação do vestígio: " + idTxt + "\n";
+  t += "\nI. Resultado da aferição\n" + v.titulo + ". " + v.corpo + "\n";
+  t += "\nII. Fundamentação\n" + (CONSEQUENCIA[v.estado] || "") + "\n";
+  const desconf = [];
+  app.dados.BLOCOS.forEach((b) => b.itens.forEach((i) => {
+    if (aplicavel(i) && ["nd", "nao"].includes((L.estado || {})[i.id]) && i.minuta) {
+      desconf.push("[" + i.id + "] " + i.minuta + ((L.obs || {})[i.id] ? " Referência nos autos: " + L.obs[i.id] + "." : ""));
+    }
+  }));
+  if (desconf.length) {
+    t += "\nIII. Pontos de desconformidade apurados\n" + desconf.join("\n") + "\n";
+  }
+  t += "\nIV. Precedente\n[inserir precedente verificado na fonte oficial, se houver]\n";
+  t += "\nV. Conclusão\n[redigir a conclusão conforme o resultado acima e o pedido das partes]\n";
+  t += "\nEscala do gabinete, não tese de tribunal nem doutrina de terceiro. Minuta de apoio; a decisão é do julgador.\n";
+  el("saida").value = t;
+  el("saidaBox").hidden = false;
+  el("relatorio").hidden = true;
+  el("btn-imprimir").hidden = false;
+  mostrarAba("saida");
+}
+
+function imprimir() {
+  if (el("saidaBox").hidden === false) {
+    el("relatorio").innerHTML = "<pre class='doc-txt'>" + escapar(el("saida").value) + "</pre>";
+  }
+  const estava = el("relatorio").hidden;
+  el("relatorio").hidden = false;
+  window.print();
+  if (estava) el("relatorio").hidden = true;
+}
+
+// ---- Fase 6: exportacao mapeada para o schema RMCr [casos.*] --------------
+// Colunas conferidas nas migrations 0028/0033 do repo ProfAMR404/rmcr-penal
+// [projeto Supabase rrjnnoxpkwpioasmecax]. Nao escreve no banco, so gera arquivo.
+function mapEnum(txt, dic) {
+  const s = (txt || "").toLowerCase();
+  for (const [chave, alvo] of dic) { if (s.includes(chave)) return alvo; }
+  return null;
+}
+const MAP_CLASSE = [["apelaç", "apelacao"], ["apelac", "apelacao"], ["recurso em sentido", "recurso_em_sentido_estrito"], ["rese", "rese"], ["habeas", "habeas_corpus"], ["mandado de seg", "mandado_seguranca"], ["revisão", "revisao_criminal"], ["revisao", "revisao_criminal"], ["agravo", "agravo_execucao"], ["embargos de decl", "embargos_declaratorios"], ["embargos infring", "embargos_infringentes"], ["inquérito", "inquerito_policial"], ["inquerito", "inquerito_policial"], ["ação penal privada", "acao_penal_privada"], ["ação penal", "acao_penal_publica"], ["acao penal", "acao_penal_publica"]];
+const MAP_FASE = [["investiga", "investigacao_preliminar"], ["inquérito", "investigacao_preliminar"], ["denúncia recebida", "denuncia_recebida"], ["denuncia recebida", "denuncia_recebida"], ["denúncia", "denuncia_oferecida"], ["denuncia", "denuncia_oferecida"], ["instru", "instrucao"], ["alega", "alegacoes_finais"], ["sentença", "sentenca"], ["sentenca", "sentenca"], ["apela", "recurso_primeiro_grau"], ["segundo grau", "segundo_grau"], ["tribunal", "segundo_grau"], ["superior", "recurso_superior"], ["trânsito", "transito_julgado"], ["transito", "transito_julgado"], ["execu", "execucao"], ["arquiv", "arquivado"], ["extin", "extinto"]];
+const MAP_ADMISS = { vermelho: "inadmitida_ilegitima", laranja: "imprestavel", amarelo: "admitida", verde: "admitida", neutro: null };
+
+function exportarRMCr() {
+  capturarAtivo();
+  const caso = lerCaso();
+  const provas = app.laudos.map((L) => {
+    const v = vereditoDe(L);
+    const ident = L.ident || {};
+    const notas = [];
+    if (ident.hash) notas.push("hash " + ident.hash);
+    if (ident.lacre) notas.push("lacre " + ident.lacre);
+    if (ident.conta) notas.push("conta " + ident.conta);
+    if (ident.provedor) notas.push("provedor " + ident.provedor);
+    if (ident.ordem_judicial) notas.push(ident.ordem_judicial);
+    return {
+      titulo: L.nome || "Prova digital",
+      fonte: "laudo pericial",
+      autoridade_produtora: caso.perito || ident.perito || null,
+      digital_dispositivo: ident.imei || ident.serie || null,
+      digital_serial: ident.serie || null,
+      digital_ferramenta: null,
+      conclusao: v.titulo,
+      custodia_iniciada: true,
+      admissibilidade: MAP_ADMISS[v.estado] || null,
+      fundamento_inadmissibilidade: ["vermelho", "laranja"].includes(v.estado) ? v.corpo : null,
+      notas: notas.join("; ") || null,
+    };
+  });
+  const dados = {
+    _schema: "rmcr-casos",
+    _versao: "1",
+    _origem: "prova-digital-profamr",
+    _observacao: "Mapa para o schema casos.* do RMCr. imputacao e partes exigem vinculo a tipo_penal e usuario no destino; aqui vao como texto. Nenhuma escrita no banco.",
+    processo: {
+      numero_cnj: caso.autos || null,
+      orgao_julgador: caso.vara || null,
+      classe_processual: mapEnum(caso.classe, MAP_CLASSE),
+      classe_texto: caso.classe || null,
+      fase_processual: mapEnum(caso.etapa, MAP_FASE),
+      fase_texto: caso.etapa || null,
+      titulo: caso.classe || caso.arguido || null,
+      sinopse: caso.hac || null,
+      observacoes: [caso.hdef ? "HDef: " + caso.hdef : "", caso.imp ? "Imputação: " + caso.imp : ""].filter(Boolean).join(" | ") || null,
+      data_fato: caso.data || null,
+    },
+    partes: caso.arguido ? [{ nome: caso.arguido, papel: "arguido" }] : [],
+    provas: provas,
+  };
+  exportarJsonArquivo(dados, "caso-rmcr.json", "Exportado para o RMCr: ");
+}
+
+async function exportarJsonArquivo(dados, nome, prefixo) {
+  const destino = await dialog.save({ defaultPath: nome, filters: [{ name: "JSON", extensions: ["json"] }] });
+  if (destino) {
+    await fs.writeTextFile(destino, JSON.stringify(dados, null, 2));
+    el("progresso").textContent = (prefixo || "Exportado: ") + destino;
+  }
+}
+
 function escapar(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
@@ -451,6 +645,10 @@ el("btn-arquivo").addEventListener("click", escolherArquivo);
 el("btn-analisar").addEventListener("click", analisar);
 el("btn-minutas").addEventListener("click", gerarMinutas);
 el("btn-exportar").addEventListener("click", exportar);
+el("btn-relatorio").addEventListener("click", gerarRelatorio);
+el("btn-termo").addEventListener("click", termoModelo);
+el("btn-rmcr").addEventListener("click", exportarRMCr);
+el("btn-imprimir").addEventListener("click", imprimir);
 el("btn-salvar-caso").addEventListener("click", salvarCaso);
 el("btn-novo-caso").addEventListener("click", novoCaso);
 el("btn-novo-laudo").addEventListener("click", novoLaudo);
