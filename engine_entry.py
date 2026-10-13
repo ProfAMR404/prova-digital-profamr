@@ -231,7 +231,7 @@ def extrair_identificacao(texto, tipos):
 # Pistas por item. "tipos" limita a pista aos tipos indicados; sem "tipos", geral.
 # A presenca do termo gera SUGESTAO, nunca resposta definitiva.
 PISTAS = {
-    "A2": {"t": ["imei", "numero de serie", "n\u00famero de s\u00e9rie"], "tipos": ["movel", "midia"]},
+    "A2": {"t": ["imei", "numero de serie", "n\u00famero de s\u00e9rie", "identificador da conta", "id da conta", "hash do arquivo"]},
     "A3": {"t": ["modo aviao", "modo avi\u00e3o", "faraday", "isolamento de radiofrequencia"], "tipos": ["movel"]},
     "A4": {"t": ["auto de apreensao", "termo de apreensao", "auto de apreens\u00e3o"], "tipos": ["movel", "midia"]},
     "B1": {"t": ["lacre"], "tipos": ["movel", "midia"]},
