@@ -97,7 +97,7 @@ fn hash_arquivo(caminho: String) -> Result<String, String> {
     use std::io::Read;
     let mut f = fs::File::open(&caminho).map_err(|e| e.to_string())?;
     let mut hasher = Sha256::new();
-    let mut buf = [0u8; 1 << 20];
+    let mut buf = vec![0u8; 1 << 20]; // buffer no heap; evita estourar a pilha da thread
     loop {
         let n = f.read(&mut buf).map_err(|e| e.to_string())?;
         if n == 0 {
