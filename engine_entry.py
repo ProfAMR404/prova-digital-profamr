@@ -11,6 +11,17 @@ import sys, os, json, re, argparse, urllib.request, hashlib, datetime
 
 BASE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 
+# O PyMuPDF imprime um aviso de depreciacao do nome fitz no stdout ao ser
+# importado; o stdout carrega apenas o JSON lido pelo app, entao o primeiro
+# import roda aqui com o stdout desviado para o stderr. Imports seguintes usam
+# o cache do modulo e nao reimprimem.
+import contextlib as _contextlib
+with _contextlib.redirect_stdout(sys.stderr):
+    try:
+        import fitz as _fitz_preload  # noqa: F401
+    except Exception:
+        pass
+
 def sha256_arquivo(caminho):
     h = hashlib.sha256()
     try:
