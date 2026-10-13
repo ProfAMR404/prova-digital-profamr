@@ -1,0 +1,109 @@
+<p>Um laudo de extração de celular chega aos autos com centenas de páginas, muitas vezes digitalizadas como imagem. Conferir, item a item, se a cadeia de custódia foi documentada do reconhecimento ao descarte é trabalho que consome horas e se perde na massa de folhas. O <a href="https://profamr.org/lab" target="_blank">Prova Digital ProfAMR</a> nasceu para organizar essa aferição no computador do próprio agente processual, sem enviar o laudo a servidor nenhum.</p>
+
+<h2>O que é?</h2>
+<p>O Prova Digital ProfAMR é um aplicativo de mesa para Windows, local e offline, que afere a cadeia de custódia da prova digital a partir do laudo pericial. Roda na máquina do usuário, lê o laudo em PDF, pré-responde por indícios os itens da cadeia de custódia e classifica o grau de conformidade. O aplicativo não é laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. Foi construído no mesmo molde do Transcritor ProfAMR: casca Tauri, motor em Python embutido e instalador para Windows. O OCR de laudo escaneado usa o Tesseract embutido, e a pré-resposta opcional por modelo de linguagem usa o Ollama na própria máquina.</p>
+
+<h2>Para que serve?</h2>
+<p>Serve a qualquer agente processual que precise examinar a idoneidade de uma prova digital: magistratura, Ministério Público, defesa, perícia e polícia judiciária. O problema que resolve é prático. O laudo de extração traz hash, lacre, IMEI, ferramenta de extração e descrição de etapas espalhados por dezenas de páginas; o aplicativo reúne esses elementos, aponta onde cada um aparece e sustenta a conferência humana de cada item, com uma classificação do resultado em três níveis. A finalidade é apoiar a decisão sobre admissibilidade e peso probatório, não decidir no lugar do usuário.</p>
+
+<h2>Como funciona?</h2>
+<p>O fluxo tem quatro etapas. Primeiro, a ficha do caso e o tipo de prova em exame [dispositivo móvel, mídia de armazenamento, nuvem, mensageria, dados voláteis], que ativam os itens aplicáveis. Segundo, a ingestão do laudo em PDF: quando o laudo é nativo digital, o texto é extraído direto; quando é escaneado como imagem, cada página passa por OCR em português, com correção de inclinação antes do reconhecimento. Terceiro, a pré-resposta por indícios: o motor localiza termos da cadeia de custódia e aponta a página de cada menção, sem afirmar conformidade por simples presença de palavra; a menção aparece para conferência, e só a detecção de negação próxima ao termo sugere desconformidade. Quarto, a confirmação humana item a item, que alimenta a classificação ao vivo.</p>
+<p>A classificação segue três níveis. Inexistência, quando há defeito comprovado em uma das duas condições básicas: a cadeia documentada do reconhecimento ao descarte e o dado bruto com o hash de origem. Quebra, quando, presentes as duas condições, há defeito comprovado que a verificação independente não supera. Arranhão, quando a desconformidade é superável pela verificação independente, inclusive a falta de documentação. O aplicativo registra o SHA-256 do próprio laudo analisado e a data da análise, e avisa, ao reabrir o caso, se o arquivo mudou desde o exame. Tudo roda na máquina, nada é enviado, o que mantém o sigilo e põe a responsabilidade pelos dados em quem opera o programa, em linha com a LGPD [Lei 13.709/2018].</p>
+
+<h2>Como aplicar na prática do Direito Penal e Processo Penal</h2>
+<p>A cadeia de custódia da prova digital é disciplinada pelo CPP, arts. 158-A a 158-F, introduzidos pela Lei 13.964/2019, que define o rastreamento do vestígio desde o reconhecimento até o descarte. No plano técnico, a referência é a ABNT NBR ISO/IEC 27037, sobre identificação, coleta, aquisição e preservação de evidência digital, somada aos procedimentos operacionais padrão do Ministério da Justiça e Segurança Pública. O aplicativo organiza a conferência a partir desses parâmetros e devolve uma classificação do grau de conformidade, não uma consequência automática.</p>
+<p>A consequência processual é aferida no caso concreto. O Superior Tribunal de Justiça tem tratado a prova digital pelos eixos da autenticidade, da integridade e da cadeia de custódia, e atribui ao órgão de acusação o ônus de comprovar a integridade e a confiabilidade das fontes; a dúvida razoável sobre a inalterabilidade dos dados não milita em desfavor do arguido. Havendo dúvida razoável sobre integridade, autenticidade e cadeia de custódia, a Sexta Turma do STJ tem exigido perícia para assegurar a confiabilidade do material e o contraditório. Em decisão noticiada em fevereiro de 2026, reconheceu-se a nulidade de prova digital entregue sem extração forense nem geração de hash, por ausência de garantia de autenticidade e integridade. O resultado do aplicativo serve de roteiro para essa aferição, sempre submetido ao contraditório e à decisão do agente.</p>
+
+<h2>Linguagem Simples</h2>
+<p>Pense no laudo como uma encomenda que passou por muitas mãos até chegar ao tribunal. A cadeia de custódia é o recibo de cada troca de mãos, e o hash é o lacre numerado da caixa. O aplicativo confere se o recibo está completo e se o lacre bate com o registrado na origem. Falta de recibo ou lacre rompido não condena nem absolve ninguém por si; apenas mostra onde a entrega pode ter sido aberta no caminho, para que o julgador decida o peso disso.</p>
+
+<h2>Representação visual</h2>
+<div style="width:100%;overflow:hidden;">
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block" role="img" aria-label="Fluxo de aferição: do laudo em PDF à classificação em três níveis">
+  <style>
+    .cx{fill:#fff;stroke:#1A1A2E;stroke-width:1.5}
+    .lbl{font-family:Inter,system-ui,sans-serif;font-size:12px;fill:#1A1A2E}
+    .lblw{font-family:Inter,system-ui,sans-serif;font-size:12px;fill:#fff}
+    .cap{font-family:Inter,system-ui,sans-serif;font-size:10.5px;fill:#5A5A5A}
+    .arw{stroke:#B8860B;stroke-width:1.6;fill:none;marker-end:url(#a)}
+    .n{fill:#1A1A2E}.g{fill:#D4A853}
+  </style>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#B8860B"/></marker></defs>
+  <rect class="cx" x="20" y="40" width="130" height="46" rx="5"/><text class="lbl" x="85" y="62" text-anchor="middle">Laudo em PDF</text><text class="cap" x="85" y="77" text-anchor="middle">nativo ou escaneado</text>
+  <rect class="cx" x="190" y="40" width="130" height="46" rx="5"/><text class="lbl" x="255" y="62" text-anchor="middle">OCR + pistas</text><text class="cap" x="255" y="77" text-anchor="middle">menção a conferir</text>
+  <rect class="cx" x="360" y="40" width="150" height="46" rx="5"/><text class="lbl" x="435" y="62" text-anchor="middle">Confirmação humana</text><text class="cap" x="435" y="77" text-anchor="middle">item a item</text>
+  <rect x="550" y="40" width="190" height="46" rx="5" class="n"/><text class="lblw" x="645" y="62" text-anchor="middle">Classificação</text><text class="lblw" x="645" y="77" text-anchor="middle" style="font-size:10.5px;fill:#D4A853">grau de conformidade</text>
+  <line class="arw" x1="150" y1="63" x2="188" y2="63"/>
+  <line class="arw" x1="320" y1="63" x2="358" y2="63"/>
+  <line class="arw" x1="510" y1="63" x2="548" y2="63"/>
+  <line class="arw" x1="645" y1="86" x2="645" y2="128"/>
+  <rect class="cx" x="40" y="150" width="160" height="42" rx="5"/><text class="lbl" x="120" y="170" text-anchor="middle">Inexistência</text><text class="cap" x="120" y="184" text-anchor="middle">defeito em uma porta</text>
+  <rect class="cx" x="220" y="150" width="160" height="42" rx="5"/><text class="lbl" x="300" y="170" text-anchor="middle">Quebra</text><text class="cap" x="300" y="184" text-anchor="middle">defeito não superável</text>
+  <rect class="cx" x="400" y="150" width="160" height="42" rx="5"/><text class="lbl" x="480" y="170" text-anchor="middle">Arranhão</text><text class="cap" x="480" y="184" text-anchor="middle">desconformidade superável</text>
+  <rect class="cx" x="580" y="150" width="160" height="42" rx="5"/><text class="lbl" x="660" y="170" text-anchor="middle">Conformidade</text><text class="cap" x="660" y="184" text-anchor="middle">íntegro</text>
+  <line class="arw" x1="560" y1="128" x2="120" y2="150"/>
+  <line class="arw" x1="600" y1="128" x2="300" y2="150"/>
+  <line class="arw" x1="660" y1="128" x2="480" y2="150"/>
+  <line class="arw" x1="700" y1="128" x2="660" y2="150"/>
+  <text class="cap" x="20" y="230">Duas portas: cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem.</text>
+  <text class="cap" x="20" y="248">A consequência processual da inexistência e da quebra é aferida no caso concreto [CPP, arts. 157 e 158-A a 158-F].</text>
+</svg>
+</div>
+
+<h2>Capturas de tela</h2>
+<p>As capturas da interface foram geradas do aplicativo instalado em teste. O programa é distribuído como instalador local, sem página pública de produto; por isso não há URL oficial de imagem a embutir aqui. As telas podem ser inseridas pelo autor no editor, a partir dos arquivos de teste.</p>
+
+<h2>POP — Procedimento Operacional Padrão</h2>
+<h3>Nível 1 — Operação básica</h3>
+<ol>
+  <li>Instalar o aplicativo na máquina pelo instalador para Windows e abrir o programa.</li>
+  <li>Na aba Caso, preencher a ficha [autos, classe, órgão, arguido, imputação, etapa, perito] e marcar o tipo de prova digital em exame.</li>
+  <li>Na aba Análise, escolher o laudo em PDF. Laudo escaneado é lido por OCR automaticamente; o texto nativo dispensa OCR.</li>
+  <li>Conferir a identificação extraída [autos, IMEI, número de série, lacre, hash, provedor] e corrigir o que o reconhecimento tiver lido errado.</li>
+  <li>Responder item a item: Conforme, Não documentado, Não conforme ou Não aplicável. O padrão é pendente até a confirmação.</li>
+  <li>Acompanhar o veredito ao vivo e, na aba Saída, gerar o relatório, o termo modelo e o export, ou salvar o caso na máquina.</li>
+</ol>
+<h3>Nível 2 — Uso no Processo Penal</h3>
+<ol>
+  <li>Preservar a fonte: analisar cópia do laudo, nunca o original de prova, e registrar o SHA-256 do arquivo que o aplicativo calcula, para aferir integridade ao reabrir.</li>
+  <li>Verificar as duas portas: a cadeia documentada do reconhecimento ao descarte e o dado bruto com o hash de origem [CPP, arts. 158-B e 158-C].</li>
+  <li>Conferir o confronto de hash entre original e cópia e a ferramenta de extração declarada, contra a ABNT NBR ISO/IEC 27037 e os procedimentos do MJSP.</li>
+  <li>Tratar valores lidos por OCR [hash, IMEI] como sujeitos a conferência no laudo, porque o reconhecimento óptico pode trocar caracteres em cadeias longas.</li>
+  <li>Registrar cada resposta com a referência nos autos [evento, página, trecho] no campo de observação, para o contraditório.</li>
+  <li>Levar a classificação como roteiro de fundamentação, não como consequência automática: inexistência e quebra são aferidas no caso concreto, conforme o prejuízo ao contraditório e à ampla defesa.</li>
+</ol>
+
+<h2>Perguntas frequentes</h2>
+<h3>O aplicativo é pago?</h3>
+<p>Não. É um instrumento próprio do Prof. AMR, distribuído como instalador local, sem licença comercial.</p>
+<h3>Meus dados saem da máquina?</h3>
+<p>Não. A leitura do laudo, o OCR e a classificação rodam localmente; nada é enviado a servidor. O modelo de linguagem opcional também roda na própria máquina, pelo Ollama.</p>
+<h3>O resultado vale como laudo ou é aceito em juízo?</h3>
+<p>Não é laudo nem parecer. É apoio à análise. A admissibilidade e o peso da prova são decididos pelo agente competente, no caso concreto, sob contraditório.</p>
+<h3>Preciso de internet ou do Ollama para usar?</h3>
+<p>Não. O OCR e a aferição por indícios funcionam offline. O Ollama é opcional e só refina a pré-resposta quando instalado.</p>
+<h3>Ele serve para qualquer tipo de prova digital?</h3>
+<p>O aplicativo cobre dispositivo móvel, mídia de armazenamento, nuvem, mensageria e dados voláteis. O tipo marcado na ficha ativa os itens aplicáveis.</p>
+<h3>O que acontece se o laudo for alterado depois da análise?</h3>
+<p>Ao reabrir o caso, o aplicativo recalcula o hash do arquivo e avisa, em destaque, se o laudo mudou desde o exame.</p>
+
+<h2>Glossário de termos</h2>
+<ul>
+  <li><strong>Cadeia de custódia</strong>: documentação do caminho do vestígio desde o reconhecimento até o descarte, com quem o coletou, como foi preservado e quem teve acesso [CPP, art. 158-A].</li>
+  <li><strong>Hash</strong>: valor calculado sobre um dado que funciona como lacre digital; qualquer alteração do dado muda o hash. SHA-256 é o algoritmo de 256 bits usual na perícia.</li>
+  <li><strong>OCR</strong>: reconhecimento óptico de caracteres, que converte imagem de texto em texto pesquisável, necessário em laudo escaneado.</li>
+  <li><strong>Imagem forense</strong>: cópia bit a bit do dado de origem, feita com bloqueador de escrita para preservar o original.</li>
+  <li><strong>Autenticidade</strong>: vínculo entre o registro e o seu verdadeiro autor ou origem.</li>
+  <li><strong>Integridade</strong>: garantia de que o conteúdo permaneceu o mesmo da coleta à apresentação em juízo.</li>
+  <li><strong>Deskew</strong>: correção de inclinação da imagem escaneada antes do OCR, para melhorar o reconhecimento.</li>
+</ul>
+
+<h2>Fontes verificadas</h2>
+<ul>
+  <li><a href="https://profamr.org/lab" target="_blank">ProfAMR-Lab, página de ferramentas e projetos do Prof. AMR</a></li>
+  <li><a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689compilado.htm" target="_blank">Código de Processo Penal, arts. 158-A a 158-F [Planalto]</a></li>
+  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13964.htm" target="_blank">Lei 13.964/2019, que introduziu a cadeia de custódia no CPP [Planalto]</a></li>
+  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank">Lei 13.709/2018, Lei Geral de Proteção de Dados Pessoais [Planalto]</a></li>
+  <li><a href="https://www.conjur.com.br/2026-jul-17/validade-da-prova-digital-autenticidade-integridade-e-cadeia-de-custodia-na-jurisprudencia-do-stj/" target="_blank">Validade da prova digital na jurisprudência do STJ [ConJur, jul. 2026]</a></li>
+  <li><a href="https://www.conjur.com.br/2026-jul-11/cadeia-de-custodia-digital-como-constrangimento-epistemologico/" target="_blank">Cadeia de custódia digital como constrangimento epistemológico [ConJur, jul. 2026]</a></li>
+</ul>
