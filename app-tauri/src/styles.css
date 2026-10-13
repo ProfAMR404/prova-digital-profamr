@@ -14,6 +14,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--corpo);font-size:15
 main{max-width:1000px;margin:0 auto;padding:0 22px 70px}
 .kicker{font-family:var(--ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ouro2);font-weight:700}
 h1{font-family:var(--disp);font-size:1.7rem;font-weight:700;margin:4px 0 16px}
+.beta{font-family:var(--ui);font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--ouro2);border-radius:10px;padding:2px 8px;vertical-align:middle;position:relative;top:-4px}
 h2{font-family:var(--ui);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--titulo);font-weight:700;margin:20px 0 8px}
 .controles,.acao{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
 .btn{font-family:var(--ui);font-size:14px;font-weight:600;padding:9px 16px;border-radius:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Prova Digital ProfAMR",
+  "productName": "Prova Digital ProfAMR Beta",
   "version": "0.1.0",
   "identifier": "org.profamr.provadigital",
   "build": {
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Prova Digital ProfAMR",
+        "title": "Prova Digital ProfAMR Beta",
         "width": 1040,
         "height": 800,
         "minWidth": 820,
