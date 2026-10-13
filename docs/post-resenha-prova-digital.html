@@ -1,7 +1,10 @@
-<p>Um laudo de extração de celular chega aos autos com centenas de páginas, muitas vezes digitalizadas como imagem. Conferir, item a item, se a cadeia de custódia foi documentada do reconhecimento ao descarte é trabalho que consome horas e se perde na massa de folhas. O <a href="https://profamr.org/lab" target="_blank">Prova Digital ProfAMR</a> nasceu para organizar essa aferição no computador do próprio agente processual, sem enviar o laudo a servidor nenhum.</p>
+<p>Um laudo de extração de celular chega aos autos com centenas de páginas, muitas vezes digitalizadas como imagem. Conferir, item a item, se a cadeia de custódia foi documentada do reconhecimento ao descarte consome horas e se perde na massa de folhas. O <a href="https://github.com/ProfAMR404/prova-digital-profamr" target="_blank">Prova Digital ProfAMR</a>, aqui em versão Beta, organiza essa aferição no computador do próprio agente processual, sem enviar o laudo a servidor nenhum.</p>
 
 <h2>O que é?</h2>
-<p>O Prova Digital ProfAMR é um aplicativo de mesa para Windows, local e offline, que afere a cadeia de custódia da prova digital a partir do laudo pericial. Roda na máquina do usuário, lê o laudo em PDF, pré-responde por indícios os itens da cadeia de custódia e classifica o grau de conformidade. O aplicativo não é laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. Foi construído no mesmo molde do Transcritor ProfAMR: casca Tauri, motor em Python embutido e instalador para Windows. O OCR de laudo escaneado usa o Tesseract embutido, e a pré-resposta opcional por modelo de linguagem usa o Ollama na própria máquina.</p>
+<p>O Prova Digital ProfAMR é um aplicativo de mesa para Windows, local e offline, em versão Beta, que afere a cadeia de custódia da prova digital a partir do laudo pericial. Roda na máquina do usuário, lê o laudo em PDF, pré-responde por indícios os itens da cadeia de custódia e classifica o grau de conformidade. O aplicativo não é laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. Por ser Beta, está em teste e pode mudar; o uso é por conta e risco de quem opera. Foi construído no mesmo molde do Transcritor ProfAMR: casca Tauri, motor em Python embutido e instalador para Windows. O OCR de laudo escaneado usa o Tesseract embutido, e a pré-resposta opcional por modelo de linguagem usa o Ollama na própria máquina.</p>
+
+<h2>Como obter</h2>
+<p>O código é aberto e está no GitHub, em ProfAMR404/prova-digital-profamr. O instalador para Windows, NSIS e MSI, sai na página de versões do projeto: <a href="https://github.com/ProfAMR404/prova-digital-profamr/releases/tag/v0.1.0-beta" target="_blank">versão 0.1.0 Beta</a>. A instalação é local; nada é enviado a servidor.</p>
 
 <h2>Para que serve?</h2>
 <p>Serve a qualquer agente processual que precise examinar a idoneidade de uma prova digital: magistratura, Ministério Público, defesa, perícia e polícia judiciária. O problema que resolve é prático. O laudo de extração traz hash, lacre, IMEI, ferramenta de extração e descrição de etapas espalhados por dezenas de páginas; o aplicativo reúne esses elementos, aponta onde cada um aparece e sustenta a conferência humana de cada item, com uma classificação do resultado em três níveis. A finalidade é apoiar a decisão sobre admissibilidade e peso probatório, não decidir no lugar do usuário.</p>
@@ -14,7 +17,7 @@
 <p>A cadeia de custódia da prova digital é disciplinada pelo CPP, arts. 158-A a 158-F, introduzidos pela Lei 13.964/2019, que define o rastreamento do vestígio desde o reconhecimento até o descarte. No plano técnico, a referência é a ABNT NBR ISO/IEC 27037, sobre identificação, coleta, aquisição e preservação de evidência digital, somada aos procedimentos operacionais padrão do Ministério da Justiça e Segurança Pública. O aplicativo organiza a conferência a partir desses parâmetros e devolve uma classificação do grau de conformidade, não uma consequência automática.</p>
 <p>A consequência processual é aferida no caso concreto. O Superior Tribunal de Justiça tem tratado a prova digital pelos eixos da autenticidade, da integridade e da cadeia de custódia, e atribui ao órgão de acusação o ônus de comprovar a integridade e a confiabilidade das fontes; a dúvida razoável sobre a inalterabilidade dos dados não milita em desfavor do arguido. Havendo dúvida razoável sobre integridade, autenticidade e cadeia de custódia, a Sexta Turma do STJ tem exigido perícia para assegurar a confiabilidade do material e o contraditório. Em decisão noticiada em fevereiro de 2026, reconheceu-se a nulidade de prova digital entregue sem extração forense nem geração de hash, por ausência de garantia de autenticidade e integridade. O resultado do aplicativo serve de roteiro para essa aferição, sempre submetido ao contraditório e à decisão do agente.</p>
 
-<h2>Linguagem Simples</h2>
+<h2>Em termos simples</h2>
 <p>Pense no laudo como uma encomenda que passou por muitas mãos até chegar ao tribunal. A cadeia de custódia é o recibo de cada troca de mãos, e o hash é o lacre numerado da caixa. O aplicativo confere se o recibo está completo e se o lacre bate com o registrado na origem. Falta de recibo ou lacre rompido não condena nem absolve ninguém por si; apenas mostra onde a entrega pode ter sido aberta no caminho, para que o julgador decida o peso disso.</p>
 
 <h2>Representação visual</h2>
@@ -50,11 +53,8 @@
 </svg>
 </div>
 
-<h2>Capturas de tela</h2>
-<p>As capturas da interface foram geradas do aplicativo instalado em teste. O programa é distribuído como instalador local, sem página pública de produto; por isso não há URL oficial de imagem a embutir aqui. As telas podem ser inseridas pelo autor no editor, a partir dos arquivos de teste.</p>
-
-<h2>POP — Procedimento Operacional Padrão</h2>
-<h3>Nível 1 — Operação básica</h3>
+<h2>POP: Procedimento Operacional Padrão</h2>
+<h3>Nível 1: operação básica</h3>
 <ol>
   <li>Instalar o aplicativo na máquina pelo instalador para Windows e abrir o programa.</li>
   <li>Na aba Caso, preencher a ficha [autos, classe, órgão, arguido, imputação, etapa, perito] e marcar o tipo de prova digital em exame.</li>
@@ -63,7 +63,7 @@
   <li>Responder item a item: Conforme, Não documentado, Não conforme ou Não aplicável. O padrão é pendente até a confirmação.</li>
   <li>Acompanhar o veredito ao vivo e, na aba Saída, gerar o relatório, o termo modelo e o export, ou salvar o caso na máquina.</li>
 </ol>
-<h3>Nível 2 — Uso no Processo Penal</h3>
+<h3>Nível 2: uso no Processo Penal</h3>
 <ol>
   <li>Preservar a fonte: analisar cópia do laudo, nunca o original de prova, e registrar o SHA-256 do arquivo que o aplicativo calcula, para aferir integridade ao reabrir.</li>
   <li>Verificar as duas portas: a cadeia documentada do reconhecimento ao descarte e o dado bruto com o hash de origem [CPP, arts. 158-B e 158-C].</li>
@@ -75,15 +75,15 @@
 
 <h2>Perguntas frequentes</h2>
 <h3>O aplicativo é pago?</h3>
-<p>Não. É um instrumento próprio do Prof. AMR, distribuído como instalador local, sem licença comercial.</p>
+<p>Não. É um instrumento próprio do Prof. AMR, de código aberto no GitHub, distribuído como instalador local, sem licença comercial.</p>
+<h3>É versão final?</h3>
+<p>Não. É versão Beta, em teste, sujeita a ajustes. O uso é por conta e risco de quem opera.</p>
 <h3>Meus dados saem da máquina?</h3>
 <p>Não. A leitura do laudo, o OCR e a classificação rodam localmente; nada é enviado a servidor. O modelo de linguagem opcional também roda na própria máquina, pelo Ollama.</p>
 <h3>O resultado vale como laudo ou é aceito em juízo?</h3>
 <p>Não é laudo nem parecer. É apoio à análise. A admissibilidade e o peso da prova são decididos pelo agente competente, no caso concreto, sob contraditório.</p>
 <h3>Preciso de internet ou do Ollama para usar?</h3>
 <p>Não. O OCR e a aferição por indícios funcionam offline. O Ollama é opcional e só refina a pré-resposta quando instalado.</p>
-<h3>Ele serve para qualquer tipo de prova digital?</h3>
-<p>O aplicativo cobre dispositivo móvel, mídia de armazenamento, nuvem, mensageria e dados voláteis. O tipo marcado na ficha ativa os itens aplicáveis.</p>
 <h3>O que acontece se o laudo for alterado depois da análise?</h3>
 <p>Ao reabrir o caso, o aplicativo recalcula o hash do arquivo e avisa, em destaque, se o laudo mudou desde o exame.</p>
 
@@ -95,15 +95,15 @@
   <li><strong>Imagem forense</strong>: cópia bit a bit do dado de origem, feita com bloqueador de escrita para preservar o original.</li>
   <li><strong>Autenticidade</strong>: vínculo entre o registro e o seu verdadeiro autor ou origem.</li>
   <li><strong>Integridade</strong>: garantia de que o conteúdo permaneceu o mesmo da coleta à apresentação em juízo.</li>
-  <li><strong>Deskew</strong>: correção de inclinação da imagem escaneada antes do OCR, para melhorar o reconhecimento.</li>
+  <li><strong>Beta</strong>: versão de teste, anterior à final, disponibilizada para uso e avaliação, sujeita a mudanças.</li>
 </ul>
 
 <h2>Fontes verificadas</h2>
 <ul>
-  <li><a href="https://profamr.org/lab" target="_blank">ProfAMR-Lab, página de ferramentas e projetos do Prof. AMR</a></li>
+  <li><a href="https://github.com/ProfAMR404/prova-digital-profamr" target="_blank">Prova Digital ProfAMR, repositório do projeto [GitHub]</a></li>
+  <li><a href="https://github.com/ProfAMR404/prova-digital-profamr/releases/tag/v0.1.0-beta" target="_blank">Instalador Windows, versão 0.1.0 Beta [GitHub Releases]</a></li>
   <li><a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689compilado.htm" target="_blank">Código de Processo Penal, arts. 158-A a 158-F [Planalto]</a></li>
-  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13964.htm" target="_blank">Lei 13.964/2019, que introduziu a cadeia de custódia no CPP [Planalto]</a></li>
-  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank">Lei 13.709/2018, Lei Geral de Proteção de Dados Pessoais [Planalto]</a></li>
+  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13964.htm" target="_blank">Lei 13.964/2019 [Planalto]</a></li>
+  <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank">Lei 13.709/2018, LGPD [Planalto]</a></li>
   <li><a href="https://www.conjur.com.br/2026-jul-17/validade-da-prova-digital-autenticidade-integridade-e-cadeia-de-custodia-na-jurisprudencia-do-stj/" target="_blank">Validade da prova digital na jurisprudência do STJ [ConJur, jul. 2026]</a></li>
-  <li><a href="https://www.conjur.com.br/2026-jul-11/cadeia-de-custodia-digital-como-constrangimento-epistemologico/" target="_blank">Cadeia de custódia digital como constrangimento epistemológico [ConJur, jul. 2026]</a></li>
 </ul>
