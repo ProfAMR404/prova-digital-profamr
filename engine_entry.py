@@ -7,9 +7,20 @@ por pistas [e, opcional, por modelo local Ollama], com a pagina de cada indicio.
 Laudo escaneado sem camada de texto e lido por OCR [Tesseract embutido].
 Nao afirma a resposta: devolve sugestoes; a confirmacao e do jurista no frontend.
 Imprime JSON no stdout. Progresso no stderr com o prefixo PROGRESSO:. Tudo local."""
-import sys, os, json, re, argparse, urllib.request
+import sys, os, json, re, argparse, urllib.request, hashlib, datetime
 
 BASE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+
+def sha256_arquivo(caminho):
+    h = hashlib.sha256()
+    try:
+        with open(caminho, "rb") as f:
+            for bloco in iter(lambda: f.read(1 << 20), b""):
+                h.update(bloco)
+        return h.hexdigest()
+    except Exception as e:
+        log("Falha ao calcular o hash do laudo: " + str(e))
+        return None
 
 def log(m):
     print("PROGRESSO: " + m, file=sys.stderr, flush=True)
@@ -66,12 +77,17 @@ def preparar_ocr():
     return pytesseract
 
 def ocr_pagina(pytess, page):
-    # Rasteriza a pagina a ~300 DPI e aplica OCR em portugues e ingles.
+    # Rasteriza a pagina a ~300 DPI, pre-processa [cinza, contraste, nitidez] e
+    # aplica OCR em portugues e ingles.
     import fitz
-    from PIL import Image
+    from PIL import Image, ImageOps, ImageFilter
     import io
     pix = page.get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72))
     img = Image.open(io.BytesIO(pix.tobytes("png")))
+    try:
+        img = ImageOps.autocontrast(img.convert("L")).filter(ImageFilter.SHARPEN)
+    except Exception:
+        pass
     idiomas = "por+eng"
     try:
         return pytess.image_to_string(img, lang=idiomas)
@@ -186,7 +202,16 @@ PISTAS = {
     "F7": {"t": ["numero de serie", "n\u00famero de s\u00e9rie", "hash"], "tipos": ["midia"]},
 }
 
+# Marcadores de negacao perto do termo. A presenca deles indica desconformidade.
+NEGACOES = ["sem ", "nao ", "não ", "ausenc", "ausênc", "inexist", "nao ha", "não há",
+            "nao consta", "não consta", "nao foi", "não foi", "rompid", "quebrad",
+            "nao confere", "não confere", "divergent", "nao identificad", "não identificad",
+            "impossibilit", "prejudicad", "nao localizad", "não localizad"]
+
 def prefill(paginas, itens, tipos):
+    # A mera presenca do termo NAO afirma conformidade. Sem negacao perto, a
+    # sugestao e neutra [resposta null = menção a conferir]. Com negacao, sugere
+    # "nao". A decisao fica com o usuario no frontend.
     sug = {}
     for b in itens["BLOCOS"]:
         for i in b["itens"]:
@@ -200,10 +225,13 @@ def prefill(paginas, itens, tipos):
             achou = False
             for termo in p["t"]:
                 for num, txt in paginas:
-                    pos = txt.lower().find(termo.lower())
+                    tl = txt.lower()
+                    pos = tl.find(termo.lower())
                     if pos >= 0:
+                        janela = tl[max(0, pos - 60):pos + 90]
+                        negou = any(nz in janela for nz in NEGACOES)
                         sug[i["id"]] = {
-                            "resposta": "sim",
+                            "resposta": "nao" if negou else None,
                             "confianca": "indicio",
                             "trecho": txt[max(0, pos - 40):pos + 90].replace("\n", " ").strip(),
                             "pagina": num,
@@ -213,6 +241,19 @@ def prefill(paginas, itens, tipos):
                 if achou:
                     break
     return sug
+
+def tipos_por_sinais(texto, ident):
+    # Sugere tipos de prova a partir dos indicios do laudo, para alertar
+    # incoerencia com o tipo marcado pelo usuario.
+    tl = texto.lower()
+    s = set()
+    if ident.get("imei") or ident.get("serie") or "imei" in tl or "cellebrite" in tl or "ufed" in tl:
+        s |= {"movel", "midia"}
+    if ident.get("conta") or ident.get("provedor") or "nuvem" in tl or "e-mail" in tl or "webmail" in tl:
+        s |= {"nuvem", "msg"}
+    if "whatsapp" in tl or "telegram" in tl or "mensageria" in tl:
+        s |= {"msg"}
+    return sorted(s)
 
 # ---- Ollama refinado ------------------------------------------------------
 def ollama_disponivel():
@@ -302,7 +343,10 @@ def analisar(caminho, saida, usar_llm, tipos, usar_ocr):
         log("Refinando por modelo local")
         for b in itens["BLOCOS"]:
             for i in b["itens"]:
-                if i["id"] not in sug and aplicavel(i, tipos):
+                if not aplicavel(i, tipos):
+                    continue
+                # Refina itens sem sugestao e tambem as mencoes neutras [resposta null].
+                if i["id"] not in sug or sug[i["id"]].get("resposta") is None:
                     s = ollama_sugere(i, paginas)
                     if s:
                         sug[i["id"]] = s
@@ -315,7 +359,10 @@ def analisar(caminho, saida, usar_llm, tipos, usar_ocr):
         "sugestoes": sug,
         "paginas": len(paginas),
         "paginas_ocr": paginas_ocr,
-        "aviso": "As respostas sao SUGESTOES por indicio, nao decisao. Confirme item a item. Processamento local, nada enviado.",
+        "tipos_sugeridos": tipos_por_sinais(texto, ident),
+        "laudo_sha256": sha256_arquivo(caminho),
+        "analisado_em": datetime.datetime.now().isoformat(timespec="seconds"),
+        "aviso": "As respostas sao SUGESTOES por indicio, nao decisao. Confirme item a item. Valores de OCR [hash, IMEI] exigem conferencia no laudo. Processamento local, nada enviado.",
     }
     try:
         os.makedirs(saida, exist_ok=True)

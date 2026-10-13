@@ -69,11 +69,17 @@ function renderBlocos() {
       .map((i) => {
         const ap = aplicavel(i);
         const s = app.sugestoes[i.id];
-        const sug = s
-          ? `<div class="sugestao">Sugestão: <b>${ROTULOS[s.resposta] || "—"}</b> ${s.pagina ? "[pág. " + s.pagina + "]" : "[" + (s.confianca || "indício") + "]"}
-               <button type="button" class="aplicar" data-id="${i.id}" data-resp="${s.resposta}">Aplicar</button>
-               ${s.trecho ? `<div class="strecho">${escapar(s.trecho)}</div>` : ""}</div>`
-          : "";
+        let sug = "";
+        if (s) {
+          const pg = s.pagina ? "[pág. " + s.pagina + "]" : "[" + (s.confianca || "indício") + "]";
+          const tr = s.trecho ? `<div class="strecho">${escapar(s.trecho)}</div>` : "";
+          // Só sugere resposta quando há juízo [negação detectada ou modelo]. Mera
+          // menção de termo não vira "Conforme": aparece como indício a conferir.
+          sug = s.resposta
+            ? `<div class="sugestao">Sugestão: <b>${ROTULOS[s.resposta] || "—"}</b> ${pg}
+                 <button type="button" class="aplicar" data-id="${i.id}" data-resp="${s.resposta}">Aplicar</button>${tr}</div>`
+            : `<div class="sugestao sug-mencao">Menção ao tema ${pg}, sem juízo automático. Responda manualmente.${tr}</div>`;
+        }
         const opts = ["", "sim", "nd", "nao", "na"]
           .map((k) => `<option value="${k}" ${app.estado[i.id] === k ? "selected" : ""}>${k ? ROTULOS[k] : "—"}</option>`)
           .join("");
@@ -111,6 +117,9 @@ function classificar() {
   d.BLOCOS.forEach((b) => b.itens.forEach((i) => (idx[i.id] = i)));
   const vale = (id) => idx[id] && aplicavel(idx[id]);
   const falhou = (ids) => ids.some((i) => vale(i) && ["nd", "nao"].includes(app.estado[i]));
+  // Lista os itens que disparam o resultado, com a causa [nao documentado x nao conforme].
+  const listar = (ids) => ids.filter((i) => vale(i) && ["nd", "nao"].includes(app.estado[i]))
+    .map((i) => i + " [" + (app.estado[i] === "nao" ? "não conforme" : "não documentado") + "]").join(", ");
   const aplicaveis = [];
   d.BLOCOS.forEach((b) => b.itens.forEach((i) => { if (aplicavel(i)) aplicaveis.push(i.id); }));
   if (app.tipos.size === 0)
@@ -119,20 +128,23 @@ function classificar() {
   if (pend)
     return { estado: "neutro", titulo: "Diagnóstico provisório", corpo: "Confirme ou ajuste cada item aplicável para o veredito conclusivo." };
   if (falhou(d.portas.porta1) || falhou(d.portas.porta2))
-    return { estado: "vermelho", titulo: "Inexistência da cadeia de custódia: inadmissibilidade", corpo: "Falta ao menos uma das duas portas [cadeia documentada; dado bruto com hash de origem]. Inadmissibilidade integral." };
+    return { estado: "vermelho", titulo: "Inexistência da cadeia de custódia: inadmissibilidade", corpo: "Falta ao menos uma das duas portas [cadeia documentada; dado bruto com hash de origem]. Itens: " + listar([].concat(d.portas.porta1, d.portas.porta2)) + ". A inadmissibilidade é aferida no caso concreto, conforme o prejuízo ao contraditório e à ampla defesa [CPP, art. 157, § 1º; arts. 158-A a 158-F]." };
   if (falhou(d.quebra))
-    return { estado: "laranja", titulo: "Quebra da cadeia de custódia: até a imprestabilidade", corpo: "Com as duas portas presentes, desconformidade que a verificação independente não supera." };
+    return { estado: "laranja", titulo: "Quebra da cadeia de custódia: até a imprestabilidade", corpo: "Com as duas portas presentes, desconformidade que a verificação independente não supera. Itens: " + listar(d.quebra) + ". A imprestabilidade é aferida no caso concreto." };
   if (aplicaveis.some((id) => ["nd", "nao"].includes(app.estado[id])))
-    return { estado: "amarelo", titulo: "Arranhão da cadeia de custódia: desconto no peso", corpo: "Com as duas portas presentes, desconformidades superadas pela verificação independente, preservada a admissibilidade." };
+    return { estado: "amarelo", titulo: "Arranhão da cadeia de custódia: desconto no peso", corpo: "Com as duas portas presentes, desconformidade superada pela verificação independente, preservada a admissibilidade. Itens: " + listar(aplicaveis) + "." };
   return { estado: "verde", titulo: "Conformidade plena: elemento admissível", corpo: "As duas portas presentes e nenhuma desconformidade entre os itens aplicáveis." };
 }
+
+// Norma de referência comum, exibida junto ao veredito e nas saídas.
+const NORMAS = "CPP [arts. 158-A a 158-F], ABNT NBR ISO/IEC 27037 e POPs do MJSP";
 
 function atualizarVeredito() {
   const v = classificar();
   const box = el("veredito");
   box.hidden = false;
   box.className = "veredito " + v.estado;
-  box.innerHTML = `<b>${v.titulo}</b><span>${v.corpo}</span><em>Escala do gabinete, não tese de tribunal.</em>`;
+  box.innerHTML = `<b>${v.titulo}</b><span>${v.corpo}</span><em>Classificação pelo grau de conformidade com ${NORMAS}.</em>`;
 }
 
 // ---- ficha do caso --------------------------------------------------------
@@ -197,9 +209,9 @@ function marca(span, estado, texto) {
 }
 function validarIdent() {
   const p = validaProcesso(el("i-processo").value);
-  marca(el("v-processo"), p, p === true ? "[CNJ ok]" : p === false ? "[conferir CNJ]" : "");
+  marca(el("v-processo"), p, p === true ? "[CNJ: verificador ok]" : p === false ? "[conferir CNJ]" : "");
   const im = validaIMEI(el("i-imei").value);
-  marca(el("v-imei"), im, im === true ? "[IMEI ok]" : im === false ? "[IMEI inválido]" : "");
+  marca(el("v-imei"), im, im === true ? "[IMEI: Luhn ok]" : im === false ? "[IMEI inválido]" : "");
   const th = tipoHash(el("i-hash").value);
   const okh = th && th.indexOf("inválido") < 0 && th.indexOf("atípico") < 0;
   marca(el("v-hash"), th ? (okh ? true : false) : null, th ? "[" + th + "]" : "");
@@ -232,9 +244,27 @@ function aplicarAtivo() {
   const temIdent = L.ident && Object.keys(L.ident).length > 0;
   el("ident-box").hidden = !temIdent;
   setIdent(L.ident || {});
+  mostrarNotaOcr(!!L.ocr);
+  mostrarProveniencia(L);
   renderBlocos();
   atualizarVeredito();
   renderLaudos();
+}
+
+function mostrarNotaOcr(on) {
+  const n = el("ident-nota");
+  if (n) n.hidden = !on;
+}
+
+function mostrarProveniencia(L) {
+  const p = el("proveniencia");
+  if (!p) return;
+  if (L && L.sha256) {
+    p.hidden = false;
+    p.textContent = "Integridade da análise: SHA-256 do laudo " + L.sha256 + (L.analisado_em ? " · análise em " + fmtData(L.analisado_em) : "");
+  } else {
+    p.hidden = true;
+  }
 }
 
 function renderLaudos() {
@@ -288,7 +318,7 @@ async function salvarCaso() {
     caso: lerCaso(),
     tipos: [...app.tipos],
     ativo: app.ativo,
-    laudos: app.laudos.map((L) => ({ id: L.id, nome: L.nome, caminho: L.caminho, data: L.data, estado: L.estado, obs: L.obs, sugestoes: L.sugestoes, ident: L.ident })),
+    laudos: app.laudos.map((L) => ({ id: L.id, nome: L.nome, caminho: L.caminho, data: L.data, sha256: L.sha256 || null, analisado_em: L.analisado_em || null, ocr: !!L.ocr, estado: L.estado, obs: L.obs, sugestoes: L.sugestoes, ident: L.ident })),
   };
   try {
     app.id = await invoke("salvar_caso", { id: app.id, dados });
@@ -325,6 +355,7 @@ async function carregarCasoId(id) {
   const z = estadoVazio();
   app.laudos = (v.laudos && v.laudos.length ? v.laudos : [novoLaudoObj()]).map((L) => ({
     id: L.id || novoId(), nome: L.nome || null, caminho: L.caminho || null, data: L.data || null,
+    sha256: L.sha256 || null, analisado_em: L.analisado_em || null, ocr: !!L.ocr,
     estado: Object.assign({}, z.estado, L.estado || {}), obs: Object.assign({}, z.obs, L.obs || {}),
     sugestoes: L.sugestoes || {}, ident: L.ident || {},
   }));
@@ -373,13 +404,27 @@ async function analisar() {
     const nocr = (res.paginas_ocr || []).length;
     if (ident.processo && el("k-autos") && !el("k-autos").value) el("k-autos").value = ident.processo;
     preencherIdent(ident);
+    mostrarNotaOcr(nocr > 0);
     const L = app.laudos[app.ativo];
-    if (L) { L.sugestoes = app.sugestoes; L.data = new Date().toISOString(); L.ident = lerIdent(); }
+    if (L) {
+      L.sugestoes = app.sugestoes;
+      L.data = new Date().toISOString();
+      L.analisado_em = res.analisado_em || L.data;
+      L.sha256 = res.laudo_sha256 || null;
+      L.ocr = nocr > 0;
+      L.ident = lerIdent();
+    }
+    mostrarProveniencia(L);
     renderBlocos();
     atualizarVeredito();
     renderLaudos();
     habilitarSaidas(true);
-    el("progresso").textContent = (nocr ? "OCR recuperou texto em " + nocr + " página(s) escaneada(s). " : "") + "Sugestões por indício prontas. Confirme item a item; o padrão é pendente.";
+    // Coerência entre o tipo de prova marcado e os indícios do laudo [F4].
+    const sugTipos = (res.tipos_sugeridos || []).filter((t) => !app.tipos.has(t));
+    const nomesTipo = {};
+    app.dados.TIPOS.forEach((t) => (nomesTipo[t.id] = t.nome));
+    const aviso = sugTipos.length ? " O laudo indica também: " + sugTipos.map((t) => nomesTipo[t] || t).join(", ") + ". Reveja o tipo de prova na aba Caso." : "";
+    el("progresso").textContent = (nocr ? "OCR recuperou texto em " + nocr + " página(s) escaneada(s); confira hash e IMEI no laudo. " : "") + "Sugestões por indício prontas. Confirme item a item; o padrão é pendente." + aviso;
   } catch (e) {
     el("progresso").textContent = "Falha: " + e;
   } finally {
@@ -482,9 +527,11 @@ function gerarRelatorio() {
     const corpoItens = linhas.length
       ? linhas.map((x) => `<tr><td class="cod">${escapar(x.id)}</td><td>${escapar(x.txt)}</td><td class="r r-${x.chave}">${escapar(x.resposta)}</td><td>${escapar(x.obs)}</td></tr>`).join("")
       : `<tr><td colspan="4">Nenhum item respondido.</td></tr>`;
+    const prov = L.sha256 ? `<p class="rel-prov">Integridade da análise: SHA-256 do laudo ${escapar(L.sha256)}${L.analisado_em ? " · análise em " + escapar(fmtData(L.analisado_em)) : ""}${L.ocr ? " · lido por OCR, conferir hash e IMEI no laudo" : ""}</p>` : "";
     laudosHtml += `<section class="rel-laudo">
       <h3>Laudo ${i + 1}${L.nome ? ": " + escapar(L.nome) : ""}</h3>
       <div class="rel-vered v-${v.estado}"><b>${escapar(v.titulo)}</b><span>${escapar(v.corpo)}</span></div>
+      ${prov}
       ${idRows ? `<table class="rel-id"><caption>Identificação</caption>${idRows}</table>` : ""}
       <table class="rel-itens"><thead><tr><th>Cód.</th><th>Item</th><th>Resposta</th><th>Observação</th></tr></thead><tbody>${corpoItens}</tbody></table>
     </section>`;
@@ -494,7 +541,7 @@ function gerarRelatorio() {
     <table class="rel-caso">${cab || '<tr><td>Ficha do caso não preenchida.</td></tr>'}</table>
     <p class="rel-tipos"><b>Tipo de prova em exame:</b> ${tipos.length ? escapar(tipos.join(", ")) : "não selecionado"}</p>
     ${laudosHtml}
-    <p class="rel-rodape">Escala do gabinete: inexistência, arranhão e quebra. Documento de apoio à decisão, não laudo nem parecer. A confirmação de cada item é humana. Processamento local.</p>
+    <p class="rel-rodape">Classificação pelo grau de conformidade com ${NORMAS}, em três níveis: inexistência, arranhão e quebra. Documento de apoio à análise, não laudo nem parecer. A confirmação de cada item é humana. Processamento local.</p>
   </div>`;
   el("relatorio").innerHTML = html;
   el("relatorio").hidden = false;
@@ -504,8 +551,8 @@ function gerarRelatorio() {
 }
 
 const CONSEQUENCIA = {
-  vermelho: "Reconhecida a inexistência da cadeia de custódia, pela falta de ao menos uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem], a prova é inadmissível na forma do art. 158-A do CPP, com o desentranhamento do elemento e das provas dele derivadas [CPP, art. 157, § 1º].",
-  laranja: "Reconhecida a quebra da cadeia de custódia, com as duas portas presentes mas desconformidade que a verificação independente não supera, o elemento é imprestável e fica excluído da valoração.",
+  vermelho: "Reconhecida a inexistência da cadeia de custódia, pela falta de ao menos uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem], o elemento tende à inadmissibilidade. A consequência é aferida no caso concreto, segundo o prejuízo ao contraditório e à ampla defesa, podendo levar ao desentranhamento do elemento e das provas dele derivadas [CPP, art. 157, § 1º; arts. 158-A a 158-F].",
+  laranja: "Reconhecida a quebra da cadeia de custódia, com as duas portas presentes mas desconformidade que a verificação independente não supera, o elemento pode ser imprestável. A exclusão da valoração é aferida no caso concreto, conforme o prejuízo demonstrado.",
   amarelo: "Reconhecido o arranhão da cadeia de custódia, com as duas portas presentes e desconformidade superada pela verificação independente, preserva-se a admissibilidade e procede-se ao desconto no peso probatório na valoração do conjunto [CPP, art. 155].",
   verde: "Reconhecida a conformidade plena da cadeia de custódia, o elemento é admissível e íntegro, sem reparo quanto à forma dos arts. 158-A a 158-F do CPP.",
   neutro: "Aferição ainda não conclusiva. Confirme cada item aplicável antes de lavrar o termo.",
@@ -525,6 +572,8 @@ function termoModelo() {
   if (caso.imp) t += "Imputação: " + caso.imp + "\n";
   t += "Tipo de prova em exame: " + (nomeTipos().join(", ") || "não selecionado") + "\n";
   if (L.nome) t += "Laudo: " + L.nome + "\n";
+  if (L.sha256) t += "SHA-256 do laudo: " + L.sha256 + (L.ocr ? " [lido por OCR, conferir no laudo]" : "") + "\n";
+  if (L.analisado_em) t += "Análise em: " + fmtData(L.analisado_em) + "\n";
   const ident = L.ident || {};
   const idTxt = Object.keys(IDENT_MAP).filter((k) => ident[k]).map((k) => k + " " + ident[k]).join("; ");
   if (idTxt) t += "Identificação do vestígio: " + idTxt + "\n";
@@ -541,7 +590,7 @@ function termoModelo() {
   }
   t += "\nIV. Precedente\n[inserir precedente verificado na fonte oficial, se houver]\n";
   t += "\nV. Conclusão\n[redigir a conclusão conforme o resultado acima e o pedido das partes]\n";
-  t += "\nEscala do gabinete, não tese de tribunal nem doutrina de terceiro. Minuta de apoio; a decisão é do julgador.\n";
+  t += "\nClassificação pelo grau de conformidade com " + NORMAS + ". Minuta de apoio, não laudo nem parecer. A confirmação dos itens e a valoração cabem ao agente processual.\n";
   el("saida").value = t;
   el("saidaBox").hidden = false;
   el("relatorio").hidden = true;
@@ -583,6 +632,8 @@ function exportarRMCr() {
     if (ident.conta) notas.push("conta " + ident.conta);
     if (ident.provedor) notas.push("provedor " + ident.provedor);
     if (ident.ordem_judicial) notas.push(ident.ordem_judicial);
+    if (L.sha256) notas.push("SHA-256 do laudo " + L.sha256 + (L.ocr ? " [OCR, conferir]" : ""));
+    if (L.analisado_em) notas.push("análise em " + fmtData(L.analisado_em));
     return {
       titulo: L.nome || "Prova digital",
       fonte: "laudo pericial",
@@ -597,10 +648,12 @@ function exportarRMCr() {
       notas: notas.join("; ") || null,
     };
   });
+  const laudoAtivo = app.laudos[app.ativo] || {};
   const dados = {
     _schema: "rmcr-casos",
     _versao: "1",
     _origem: "prova-digital-profamr",
+    _proveniencia: { ferramenta: "prova-digital-profamr", laudo_sha256: laudoAtivo.sha256 || null, analisado_em: laudoAtivo.analisado_em || null },
     _observacao: "Mapa para o schema casos.* do RMCr. imputacao e partes exigem vinculo a tipo_penal e usuario no destino; aqui vao como texto. Nenhuma escrita no banco.",
     processo: {
       numero_cnj: caso.autos || null,

@@ -89,6 +89,7 @@
 
     <section id="ident-box" class="ident-edit" hidden>
       <h2>Identificação do exame [editável]</h2>
+      <p class="nota ocr-nota" id="ident-nota" hidden>Identificação extraída de páginas com OCR. Confira os valores longos [hash, IMEI, autos] no laudo original; o reconhecimento óptico pode trocar caracteres.</p>
       <div class="grid-ident">
         <label class="campo">Autos n.<span class="linha"><input id="i-processo"><span class="val" id="v-processo"></span></span></label>
         <label class="campo">Perito / Órgão<input id="i-perito"></label>
@@ -100,6 +101,7 @@
         <label class="campo">Provedor<input id="i-provedor"></label>
         <label class="campo campo-largo">Ordem judicial<input id="i-ordem"></label>
       </div>
+      <p class="nota" id="proveniencia" hidden></p>
     </section>
     <section id="veredito" class="veredito neutro" hidden></section>
 
@@ -127,10 +129,10 @@
     <div class="instr">
       <div class="disclaimer">
         <div class="t">Isenção de responsabilidade</div>
-        <p>Ferramenta de apoio à decisão. Organiza a aferição da cadeia de custódia da prova digital segundo critérios do gabinete. Não emite laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. O resultado depende das respostas confirmadas pelo usuário e pressupõe a leitura integral do laudo.</p>
+        <p>Ferramenta de apoio à análise, para qualquer agente processual. Organiza a aferição da cadeia de custódia da prova digital segundo o CPP [arts. 158-A a 158-F], a ABNT NBR ISO/IEC 27037 e os POPs do MJSP. Não emite laudo nem parecer, não substitui a análise do caso concreto e não constitui aconselhamento jurídico. O resultado depende das respostas confirmadas pelo usuário e pressupõe a leitura integral do laudo.</p>
       </div>
       <h2>Para que serve</h2>
-      <p>Afere a cadeia de custódia de um vestígio digital a partir do laudo, pela escala do gabinete inexistência, arranhão e quebra, e redige minutas de fundamentação. A pré-resposta é sugestão; a confirmação é humana.</p>
+      <p>Afere a cadeia de custódia de um vestígio digital a partir do laudo. Classifica o grau de conformidade em três níveis [inexistência, arranhão e quebra] conforme o CPP [arts. 158-A a 158-F], a ABNT NBR ISO/IEC 27037 e os POPs do MJSP. Redige minutas de fundamentação dos itens desconformes. A pré-resposta é sugestão; a confirmação é humana.</p>
       <h2>Passo a passo</h2>
       <div class="passo"><b>1. Caso.</b> Preencha a ficha na aba Caso: autos, classe, vara, arguido, imputação, etapa, perito, hipóteses.</div>
       <div class="passo"><b>2. Tipo de prova.</b> Marque uma ou mais espécies. Os itens do bloco F só entram no cálculo para os tipos marcados; os demais ficam inaplicáveis.</div>
@@ -140,11 +142,11 @@
       <div class="passo"><b>6. Saída.</b> Na aba Saída, gere as minutas e exporte o caso em JSON.</div>
       <h2>A escala</h2>
       <ul>
-        <li><b>Inexistência</b>: falta uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem]. Inadmissibilidade integral.</li>
+        <li><b>Inexistência</b>: falta uma das duas portas [cadeia documentada do reconhecimento ao descarte; dado bruto com o hash de origem]. Tende à inadmissibilidade, aferida no caso concreto conforme o prejuízo ao contraditório e à ampla defesa.</li>
         <li><b>Arranhão</b>: com as duas portas presentes, desconformidade que a verificação independente supera. Desconto no peso probatório.</li>
         <li><b>Quebra</b>: com as duas portas presentes, desconformidade que a verificação independente não supera. Até a imprestabilidade.</li>
       </ul>
-      <p>Escala do gabinete, não tese de tribunal nem doutrina de terceiro.</p>
+      <p>A classificação expressa o grau de conformidade com o CPP [arts. 158-A a 158-F], a ABNT NBR ISO/IEC 27037 e os POPs do MJSP. A consequência processual é aferida no caso concreto.</p>
       <h2>Privacidade</h2>
       <p>Tudo roda na máquina, nada é enviado a servidor. Não insira dado sigiloso em computador compartilhado ou público.</p>
     </div>

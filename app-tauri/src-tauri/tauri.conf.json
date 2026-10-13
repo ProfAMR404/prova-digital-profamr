@@ -35,6 +35,6 @@
       "binaries/prova-digital-engine"
     ],
     "shortDescription": "Cadeia de custodia da prova digital, offline",
-    "longDescription": "Ingere o laudo em PDF, pre-responde os itens da cadeia de custodia por pistas e por modelo local, classifica pela escala do gabinete [inexistencia, arranhao e quebra] e redige minutas. Local e offline."
+    "longDescription": "Ingere o laudo em PDF, pre-responde os itens da cadeia de custodia por pistas e por modelo local, classifica o grau de conformidade [inexistencia, arranhao e quebra] conforme CPP arts. 158-A a 158-F, ABNT NBR ISO/IEC 27037 e POPs do MJSP, e redige minutas. Local e offline."
   }
 }

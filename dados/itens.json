@@ -270,7 +270,7 @@
      "core": false,
      "txt": "O laudo declara limitações, margens de erro e ressalvas técnicas do exame?",
      "fund": "ABNT NBR ISO/IEC 27037:2013: justificabilidade; CPP, art. 159, § 5º, II.",
-     "minuta": "O laudo apresenta conclusões sem declaração de limitações e de margens de erro. Toda técnica forense opera com taxa de erro e a omissão do dado converte resultado probabilístico em enunciado categórico, com sobrevalorização do elemento pelo julgador."
+     "minuta": "O laudo apresenta conclusões sem declaração de limitações e de margens de erro. Toda técnica forense opera com taxa de erro e a omissão do dado converte resultado probabilístico em enunciado categórico, com sobrevalorização do elemento na valoração."
     }
    ]
   },

@@ -40,6 +40,10 @@ h2{font-family:var(--ui);font-size:.8rem;letter-spacing:.08em;text-transform:upp
 .item .fund{font-family:var(--ui);font-size:11.5px;color:var(--titulo);margin-top:3px}
 .item .sugestao{font-family:var(--ui);font-size:11.5px;color:var(--titulo);background:#FCFAF4;border-left:3px solid var(--ouro);border-radius:4px;padding:5px 8px;margin-top:5px}
 .item .sugestao b{color:var(--ouro2)}
+.item .sugestao.sug-mencao{background:#F4F4F2;border-left-color:#8A8880;color:var(--titulo)}
+.ocr-nota{border-left:3px solid var(--amarelo);background:var(--amarelo-bg);color:var(--amarelo);border-radius:4px;padding:6px 10px}
+#proveniencia{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--titulo);word-break:break-all}
+.rel-prov{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--titulo);word-break:break-all;margin:0 0 8px}
 .item .strecho{font-style:italic;color:var(--titulo);margin-top:2px}
 button.aplicar{font-family:var(--ui);font-size:10.5px;font-weight:700;padding:1px 7px;margin-left:6px;border:1px solid var(--ouro2);border-radius:10px;background:#fff;color:var(--ouro2);cursor:pointer}
 button.aplicar:hover{background:var(--ouro2);color:#fff}

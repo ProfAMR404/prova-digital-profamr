@@ -1,10 +1,11 @@
 # Prova Digital ProfAMR [desktop]
 
-Aplicativo local do método RoadMapCrime para a cadeia de custódia da prova digital.
-Ingere o laudo em PDF, pré-responde os itens por pistas e, opcionalmente, por modelo
-local [Ollama], classifica pela escala do gabinete [inexistência, arranhão e quebra]
-e redige minutas. O jurista refina. Tudo na máquina, nada é enviado, o que mantém o
-sigilo e a conformidade com a LGPD e põe a responsabilidade em quem assina.
+Aplicativo local para a cadeia de custódia da prova digital, para qualquer agente
+processual. Ingere o laudo em PDF, pré-responde os itens por pistas e, opcionalmente,
+por modelo local [Ollama], classifica o grau de conformidade da cadeia de custódia
+[inexistência, arranhão e quebra] e redige minutas. O usuário refina. Tudo na máquina,
+nada é enviado, o que mantém o sigilo e a conformidade com a LGPD e põe a
+responsabilidade em quem assina.
 
 Mesmo molde do Transcritor ProfAMR: casca Tauri v2 com o motor Python como sidecar,
 empacotado por PyInstaller, instalador Windows gerado por GitHub Actions.
@@ -37,6 +38,7 @@ cada item.
 
 ## Limites
 
-A escala inexistência, arranhão e quebra é elaboração do gabinete, não tese de
-tribunal nem doutrina de terceiro. A saída não é laudo nem parecer. Laudo escaneado
-como imagem exige OCR, previsto para versão futura.
+A classificação inexistência, arranhão e quebra expressa o grau de conformidade com o
+CPP [arts. 158-A a 158-F], a ABNT NBR ISO/IEC 27037 e os POPs do MJSP. A consequência
+processual é aferida no caso concreto. A saída não é laudo nem parecer. Laudo escaneado
+como imagem é lido por OCR com Tesseract embutido; confira os valores longos no laudo.

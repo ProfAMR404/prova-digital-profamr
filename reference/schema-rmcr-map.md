@@ -53,7 +53,7 @@ Uma parte com `nome` [Arguido] e `papel` arguido. O vínculo a `tipo_penal` e a
 
 ### Veredito para admissibilidade
 
-| Escala do gabinete | admissibilidade [enum RMCr] |
+| Classificação [grau de conformidade] | admissibilidade [enum RMCr] |
 |---|---|
 | Inexistência | inadmitida_ilegitima |
 | Quebra | imprestavel |
