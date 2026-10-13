@@ -90,6 +90,24 @@ fn carregar_caso(app: tauri::AppHandle, id: String) -> Result<serde_json::Value,
     serde_json::from_str(&txt).map_err(|e| e.to_string())
 }
 
+// Recalcula o SHA-256 de um arquivo, para aferir se o laudo mudou desde a analise.
+#[tauri::command]
+fn hash_arquivo(caminho: String) -> Result<String, String> {
+    use sha2::{Digest, Sha256};
+    use std::io::Read;
+    let mut f = fs::File::open(&caminho).map_err(|e| e.to_string())?;
+    let mut hasher = Sha256::new();
+    let mut buf = [0u8; 1 << 20];
+    loop {
+        let n = f.read(&mut buf).map_err(|e| e.to_string())?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buf[..n]);
+    }
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
 #[tauri::command]
 fn excluir_caso(app: tauri::AppHandle, id: String) -> Result<(), String> {
     let dir = casos_dir(&app)?;
@@ -180,7 +198,8 @@ pub fn run() {
             salvar_caso,
             listar_casos,
             carregar_caso,
-            excluir_caso
+            excluir_caso,
+            hash_arquivo
         ])
         .run(tauri::generate_context!())
         .expect("erro ao iniciar a aplicacao Tauri");

@@ -76,16 +76,53 @@ def preparar_ocr():
         os.environ["TESSDATA_PREFIX"] = tessdata
     return pytesseract
 
+def _deskew(img):
+    # Estima a inclinacao numa versao reduzida e binarizada, pela variancia da
+    # projecao horizontal [linhas de texto], e corrige a imagem inteira. So PIL.
+    try:
+        import statistics
+        g = img.convert("L")
+        w, h = g.size
+        esc = 700.0 / max(w, 1)
+        peq = g.resize((max(1, int(w * esc)), max(1, int(h * esc))))
+        bz = peq.point(lambda p: 255 if p < 160 else 0)
+        pw, ph = bz.size
+        def escore(ang):
+            r = bz.rotate(ang, expand=False, fillcolor=0)
+            d = list(r.getdata())
+            linhas = [sum(d[y * pw:(y + 1) * pw]) for y in range(ph)]
+            return statistics.pvariance(linhas) if len(linhas) > 1 else 0
+        melhor, best = 0.0, -1
+        a = -6.0
+        while a <= 6.0001:
+            s = escore(a)
+            if s > best:
+                best, melhor = s, a
+            a += 1.0
+        base = melhor
+        a = base - 0.75
+        while a <= base + 0.7501:
+            s = escore(a)
+            if s > best:
+                best, melhor = s, a
+            a += 0.25
+        if abs(melhor) >= 0.5:
+            return img.rotate(melhor, expand=True, fillcolor=255)
+        return img
+    except Exception:
+        return img
+
 def ocr_pagina(pytess, page):
-    # Rasteriza a pagina a ~300 DPI, pre-processa [cinza, contraste, nitidez] e
-    # aplica OCR em portugues e ingles.
+    # Rasteriza a pagina a ~300 DPI, corrige inclinacao, pre-processa [cinza,
+    # contraste, nitidez] e aplica OCR em portugues e ingles.
     import fitz
     from PIL import Image, ImageOps, ImageFilter
     import io
     pix = page.get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72))
     img = Image.open(io.BytesIO(pix.tobytes("png")))
     try:
-        img = ImageOps.autocontrast(img.convert("L")).filter(ImageFilter.SHARPEN)
+        img = _deskew(img.convert("L"))
+        img = ImageOps.autocontrast(img).filter(ImageFilter.SHARPEN)
     except Exception:
         pass
     idiomas = "por+eng"

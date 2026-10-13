@@ -43,6 +43,7 @@ h2{font-family:var(--ui);font-size:.8rem;letter-spacing:.08em;text-transform:upp
 .item .sugestao.sug-mencao{background:#F4F4F2;border-left-color:#8A8880;color:var(--titulo)}
 .ocr-nota{border-left:3px solid var(--amarelo);background:var(--amarelo-bg);color:var(--amarelo);border-radius:4px;padding:6px 10px}
 #proveniencia{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--titulo);word-break:break-all}
+#proveniencia.prov-alerta{color:var(--vermelho);font-weight:700;font-family:var(--ui)}
 .rel-prov{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--titulo);word-break:break-all;margin:0 0 8px}
 .item .strecho{font-style:italic;color:var(--titulo);margin-top:2px}
 button.aplicar{font-family:var(--ui);font-size:10.5px;font-weight:700;padding:1px 7px;margin-left:6px;border:1px solid var(--ouro2);border-radius:10px;background:#fff;color:var(--ouro2);cursor:pointer}

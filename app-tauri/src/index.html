@@ -118,6 +118,7 @@
       <button id="btn-imprimir" class="btn primario" hidden>Imprimir / Salvar PDF</button>
     </section>
     <p class="nota">O relatório e o termo abrem para conferência. Imprimir / Salvar PDF usa a impressão do sistema; escolha Salvar como PDF. O termo é minuta editável, não decisão.</p>
+    <p class="nota">Exportar para o RMCr gera um JSON mapeado ao schema casos.* [processo, parte, prova], com a proveniência da análise. Não preenche a linha do tempo de casos.cadeia_custodia nem vincula a imputação a tipo_penal; esses campos vão como texto e ficam a cargo do RMCr. Nenhuma escrita no banco.</p>
     <section class="saida" hidden id="saidaBox">
       <h2>Saída</h2>
       <textarea id="saida" class="saida-txt" spellcheck="false"></textarea>

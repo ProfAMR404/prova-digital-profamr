@@ -116,8 +116,11 @@ function classificar() {
   const idx = {};
   d.BLOCOS.forEach((b) => b.itens.forEach((i) => (idx[i.id] = i)));
   const vale = (id) => idx[id] && aplicavel(idx[id]);
-  const falhou = (ids) => ids.some((i) => vale(i) && ["nd", "nao"].includes(app.estado[i]));
-  // Lista os itens que disparam o resultado, com a causa [nao documentado x nao conforme].
+  // P3: "nao conforme" [defeito comprovado] e "nao documentado" [nd] tem efeitos
+  // distintos. So o defeito comprovado derruba uma porta ou aciona a quebra; a
+  // falta de documentacao, superavel por verificacao independente, fica no arranhao.
+  const temNao = (ids) => ids.some((i) => vale(i) && app.estado[i] === "nao");
+  const listarNao = (ids) => ids.filter((i) => vale(i) && app.estado[i] === "nao").map((i) => i + " [não conforme]").join(", ");
   const listar = (ids) => ids.filter((i) => vale(i) && ["nd", "nao"].includes(app.estado[i]))
     .map((i) => i + " [" + (app.estado[i] === "nao" ? "não conforme" : "não documentado") + "]").join(", ");
   const aplicaveis = [];
@@ -127,12 +130,12 @@ function classificar() {
   const pend = aplicaveis.some((id) => app.estado[id] === null);
   if (pend)
     return { estado: "neutro", titulo: "Diagnóstico provisório", corpo: "Confirme ou ajuste cada item aplicável para o veredito conclusivo." };
-  if (falhou(d.portas.porta1) || falhou(d.portas.porta2))
-    return { estado: "vermelho", titulo: "Inexistência da cadeia de custódia: inadmissibilidade", corpo: "Falta ao menos uma das duas portas [cadeia documentada; dado bruto com hash de origem]. Itens: " + listar([].concat(d.portas.porta1, d.portas.porta2)) + ". A inadmissibilidade é aferida no caso concreto, conforme o prejuízo ao contraditório e à ampla defesa [CPP, art. 157, § 1º; arts. 158-A a 158-F]." };
-  if (falhou(d.quebra))
-    return { estado: "laranja", titulo: "Quebra da cadeia de custódia: até a imprestabilidade", corpo: "Com as duas portas presentes, desconformidade que a verificação independente não supera. Itens: " + listar(d.quebra) + ". A imprestabilidade é aferida no caso concreto." };
+  if (temNao(d.portas.porta1) || temNao(d.portas.porta2))
+    return { estado: "vermelho", titulo: "Inexistência da cadeia de custódia: inadmissibilidade", corpo: "Defeito comprovado em ao menos uma das duas portas [cadeia documentada; dado bruto com hash de origem]. Itens: " + listarNao([].concat(d.portas.porta1, d.portas.porta2)) + ". A inadmissibilidade é aferida no caso concreto, conforme o prejuízo ao contraditório e à ampla defesa [CPP, art. 157, § 1º; arts. 158-A a 158-F]." };
+  if (temNao(d.quebra))
+    return { estado: "laranja", titulo: "Quebra da cadeia de custódia: até a imprestabilidade", corpo: "Com as duas portas presentes, defeito comprovado que a verificação independente não supera. Itens: " + listarNao(d.quebra) + ". A imprestabilidade é aferida no caso concreto." };
   if (aplicaveis.some((id) => ["nd", "nao"].includes(app.estado[id])))
-    return { estado: "amarelo", titulo: "Arranhão da cadeia de custódia: desconto no peso", corpo: "Com as duas portas presentes, desconformidade superada pela verificação independente, preservada a admissibilidade. Itens: " + listar(aplicaveis) + "." };
+    return { estado: "amarelo", titulo: "Arranhão da cadeia de custódia: desconto no peso", corpo: "Desconformidade superável pela verificação independente, inclusive falta de documentação em porta, preservada a admissibilidade. Itens: " + listar(aplicaveis) + "." };
   return { estado: "verde", titulo: "Conformidade plena: elemento admissível", corpo: "As duas portas presentes e nenhuma desconformidade entre os itens aplicáveis." };
 }
 
@@ -259,11 +262,32 @@ function mostrarNotaOcr(on) {
 function mostrarProveniencia(L) {
   const p = el("proveniencia");
   if (!p) return;
+  p.classList.remove("prov-alerta");
   if (L && L.sha256) {
     p.hidden = false;
     p.textContent = "Integridade da análise: SHA-256 do laudo " + L.sha256 + (L.analisado_em ? " · análise em " + fmtData(L.analisado_em) : "");
   } else {
     p.hidden = true;
+  }
+}
+
+// F1: ao reabrir, re-calcula o hash do laudo e avisa se o arquivo mudou.
+async function verificarIntegridade(L) {
+  if (!L || !L.caminho || !L.sha256) return;
+  const p = el("proveniencia");
+  if (!p) return;
+  try {
+    const atual = await invoke("hash_arquivo", { caminho: L.caminho });
+    if (!atual) return;
+    if (atual.toLowerCase() === L.sha256.toLowerCase()) {
+      p.textContent += " · arquivo íntegro";
+    } else {
+      p.hidden = false;
+      p.classList.add("prov-alerta");
+      p.textContent = "ATENÇÃO: o laudo em " + L.caminho + " mudou desde a análise. SHA-256 atual " + atual + ", registrado " + L.sha256 + ". Reanalise o laudo.";
+    }
+  } catch (e) {
+    p.textContent += " · arquivo não acessível para conferência";
   }
 }
 
@@ -287,6 +311,7 @@ function trocarLaudo(i) {
   capturarAtivo();
   app.ativo = i;
   aplicarAtivo();
+  verificarIntegridade(app.laudos[app.ativo]);
 }
 
 function excluirLaudo() {
@@ -364,6 +389,7 @@ async function carregarCasoId(id) {
   habilitarSaidas(temAnalise);
   el("caso-status").textContent = "Caso carregado [" + fmtData(v.atualizado) + "].";
   aplicarAtivo();
+  verificarIntegridade(app.laudos[app.ativo]);
   mostrarAba("caso");
 }
 
