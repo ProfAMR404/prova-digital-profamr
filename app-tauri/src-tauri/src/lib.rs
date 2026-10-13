@@ -3,10 +3,11 @@
 // [eventos 'progresso'] e devolve o JSON do resultado ao frontend.
 
 use std::fs;
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::sync::mpsc;
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::{Emitter, Manager};
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
@@ -297,6 +298,125 @@ async fn analisar(
         .map_err(|e| format!("saida invalida do motor: {e}"))
 }
 
+// Serializa um valor JSON-RPC como uma linha [transporte STDIO do MCP].
+fn jsonrpc_linha(v: &serde_json::Value) -> String {
+    let mut s = serde_json::to_string(v).unwrap_or_default();
+    s.push('\n');
+    s
+}
+
+// Modo C, leitura do caso: cliente MCP por STDIO. Sobe o servidor do IPEDTools,
+// faz o handshake [initialize, notifications/initialized] e executa tools/list
+// ou tools/call. So leitura; o servidor do IPEDTools opera read-only sobre o caso.
+#[tauri::command]
+async fn mcp_iped(
+    comando: String,
+    args: Vec<String>,
+    op: String,
+    tool: Option<String>,
+    arguments: Option<serde_json::Value>,
+    cwd: Option<String>,
+) -> Result<serde_json::Value, String> {
+    if comando.trim().is_empty() {
+        return Err("comando do servidor MCP nao configurado".into());
+    }
+    tauri::async_runtime::spawn_blocking(move || -> Result<serde_json::Value, String> {
+        let mut cmd = Command::new(&comando);
+        cmd.args(&args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        if let Some(d) = cwd.as_ref().filter(|s| !s.trim().is_empty()) {
+            cmd.current_dir(d);
+        }
+        let mut child = cmd
+            .spawn()
+            .map_err(|e| format!("falha ao iniciar o servidor MCP: {e}"))?;
+        let mut stdin = child.stdin.take().ok_or("sem stdin no servidor MCP")?;
+        let stdout = child.stdout.take().ok_or("sem stdout no servidor MCP")?;
+        if let Some(err) = child.stderr.take() {
+            std::thread::spawn(move || {
+                let r = BufReader::new(err);
+                for _l in r.lines().map_while(Result::ok) {}
+            });
+        }
+        let (tx, rx) = mpsc::channel::<serde_json::Value>();
+        std::thread::spawn(move || {
+            let r = BufReader::new(stdout);
+            for linha in r.lines().map_while(Result::ok) {
+                let t = linha.trim();
+                if t.is_empty() {
+                    continue;
+                }
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(t) {
+                    if tx.send(v).is_err() {
+                        break;
+                    }
+                }
+            }
+        });
+        let timeout = Duration::from_secs(120);
+        let esperar = |id: i64| -> Result<serde_json::Value, String> {
+            let fim = Instant::now() + timeout;
+            loop {
+                let resta = fim
+                    .checked_duration_since(Instant::now())
+                    .ok_or("tempo esgotado aguardando o servidor MCP")?;
+                match rx.recv_timeout(resta) {
+                    Ok(v) => {
+                        if v.get("id").and_then(|x| x.as_i64()) == Some(id) {
+                            return Ok(v);
+                        }
+                    }
+                    Err(_) => return Err("tempo esgotado aguardando o servidor MCP".into()),
+                }
+            }
+        };
+        let enviar = |stdin: &mut std::process::ChildStdin, v: &serde_json::Value| -> Result<(), String> {
+            stdin
+                .write_all(jsonrpc_linha(v).as_bytes())
+                .map_err(|e| e.to_string())?;
+            stdin.flush().map_err(|e| e.to_string())
+        };
+
+        let init = serde_json::json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"prova-digital-profamr","version":"0.1.0"}}});
+        enviar(&mut stdin, &init)?;
+        let init_res = esperar(1)?;
+        if let Some(e) = init_res.get("error") {
+            let _ = child.kill();
+            return Err(format!("initialize falhou: {e}"));
+        }
+        enviar(
+            &mut stdin,
+            &serde_json::json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
+        )?;
+
+        let (metodo, params) = if op == "call" {
+            (
+                "tools/call",
+                serde_json::json!({"name": tool.unwrap_or_default(), "arguments": arguments.unwrap_or_else(|| serde_json::json!({}))}),
+            )
+        } else {
+            ("tools/list", serde_json::json!({}))
+        };
+        enviar(
+            &mut stdin,
+            &serde_json::json!({"jsonrpc":"2.0","id":2,"method":metodo,"params":params}),
+        )?;
+        let res = esperar(2)?;
+        let _ = child.kill();
+        if let Some(e) = res.get("error") {
+            return Err(format!("{metodo} falhou: {e}"));
+        }
+        Ok(serde_json::json!({
+            "server": init_res.get("result").and_then(|r| r.get("serverInfo")).cloned(),
+            "result": res.get("result").cloned().unwrap_or(serde_json::Value::Null),
+        }))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -311,7 +431,8 @@ pub fn run() {
             excluir_caso,
             hash_arquivo,
             iped_detectar,
-            iped_processar
+            iped_processar,
+            mcp_iped
         ])
         .run(tauri::generate_context!())
         .expect("erro ao iniciar a aplicacao Tauri");
