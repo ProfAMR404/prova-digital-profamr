@@ -39,9 +39,9 @@
      "id": "A2",
      "peso": "critico",
      "core": true,
-     "txt": "O hardware foi individualizado por marca, modelo e IMEI ou número de série no momento da apreensão?",
-     "fund": "CPP, art. 158-A: rastreabilidade da posse; identificação unívoca do vestígio.",
-     "minuta": "A apreensão ocorreu sem individualização do aparelho por IMEI ou número de série. A omissão impede o juízo de mesmidade entre o objeto apreendido e o objeto periciado, requisito de rastreabilidade extraído do art. 158-A do CPP. Sem identificador unívoco, a correspondência entre vestígio e laudo repousa em presunção."
+     "txt": "O vestígio foi individualizado por identificador unívoco próprio do suporte [dispositivo: marca, modelo, IMEI ou número de série; mídia: número de série; conta ou provedor: identificador da conta, período e ordem; arquivo entregue por particular: nome, tamanho, hash e origem]?",
+     "fund": "CPP, art. 158-A: rastreabilidade da posse; identificação unívoca do vestígio, com ou sem suporte físico [Resolução CNMP 328/2026, art. 2º, e a g].",
+     "minuta": "O vestígio digital não foi individualizado por identificador unívoco próprio do suporte [IMEI ou número de série do dispositivo, número de série da mídia, identificador da conta e período da coleta junto ao provedor, ou nome, tamanho e hash do arquivo entregue]. A omissão impede o juízo de mesmidade entre o vestígio reconhecido e o vestígio periciado, requisito de rastreabilidade extraído do art. 158-A do CPP. Sem identificador unívoco, a correspondência entre vestígio e laudo repousa em presunção."
     },
     {
      "id": "A3",
