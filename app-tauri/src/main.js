@@ -712,7 +712,7 @@ function escapar(s) {
 }
 
 function mostrarAba(q) {
-  [["caso", "p-caso", "t-caso"], ["analise", "p-analise", "t-analise"], ["saida", "p-saida", "t-saida"], ["instrucoes", "p-instrucoes", "t-instrucoes"]].forEach(([k, p, t]) => {
+  [["caso", "p-caso", "t-caso"], ["analise", "p-analise", "t-analise"], ["saida", "p-saida", "t-saida"], ["iped", "p-iped", "t-iped"], ["instrucoes", "p-instrucoes", "t-instrucoes"]].forEach(([k, p, t]) => {
     const on = k === q;
     el(p).hidden = !on;
     el(t).classList.toggle("on", on);
@@ -736,6 +736,70 @@ el("laudo-sel").addEventListener("change", (e) => trocarLaudo(+e.target.value));
 el("t-caso").addEventListener("click", () => mostrarAba("caso"));
 el("t-analise").addEventListener("click", () => mostrarAba("analise"));
 el("t-saida").addEventListener("click", () => mostrarAba("saida"));
+el("t-iped").addEventListener("click", () => mostrarAba("iped"));
 el("t-instrucoes").addEventListener("click", () => mostrarAba("instrucoes"));
+
+// Modo C: orquestracao do IPED.
+const iped = { path: "", fonte: "" };
+function ipedCarregarPath() {
+  try { iped.path = localStorage.getItem("iped_path") || ""; } catch (e) { iped.path = ""; }
+  if (iped.path) el("iped-path").textContent = iped.path;
+}
+async function ipedLocalizar() {
+  const esc = await dialog.open({ multiple: false, filters: [{ name: "IPED", extensions: ["exe"] }] });
+  if (!esc) return;
+  iped.path = esc;
+  try { localStorage.setItem("iped_path", esc); } catch (e) {}
+  el("iped-path").textContent = esc;
+  await ipedDetectar();
+}
+async function ipedDetectar() {
+  el("iped-versao").textContent = "detectando…";
+  try {
+    const r = await invoke("iped_detectar", { caminho: iped.path || null });
+    el("iped-versao").textContent = r.versao + (r.linha ? " [" + r.linha + "]" : "");
+    if (r.path) { iped.path = r.path; el("iped-path").textContent = r.path; }
+  } catch (e) {
+    el("iped-versao").textContent = "não encontrado: " + e;
+  }
+}
+async function ipedEscolherFonte(pasta) {
+  const esc = await dialog.open(pasta
+    ? { directory: true, multiple: false }
+    : { multiple: false, filters: [{ name: "Imagem forense", extensions: ["dd", "001", "e01", "ex01", "vhd", "vhdx", "vmdk", "iso", "ad1", "ufdr", "raw", "img"] }, { name: "Todos", extensions: ["*"] }] });
+  if (!esc) return;
+  iped.fonte = esc;
+  el("iped-fonte").textContent = esc;
+}
+async function ipedProcessar() {
+  if (!iped.path) { el("iped-progresso").textContent = "Configure o caminho do IPED primeiro."; return; }
+  if (!iped.fonte) { el("iped-progresso").textContent = "Escolha a fonte do exame primeiro."; return; }
+  el("iped-progresso").textContent = "Calculando hash de origem e iniciando o IPED…";
+  el("btn-iped-processar").disabled = true;
+  const parar = await listen("iped-progresso", (ev) => (el("iped-progresso").textContent = ev.payload));
+  try {
+    const res = await invoke("iped_processar", { fonte: iped.fonte, ipedPath: iped.path });
+    el("iped-r-fonte").value = res.fonte || iped.fonte;
+    el("iped-r-hash").value = res.origem_sha256 || "[fonte não é arquivo; integridade por item no IPED]";
+    el("iped-r-caso").value = res.case_path || "";
+    el("iped-r-versao").value = el("iped-versao").textContent;
+    el("iped-r-data").value = new Date().toISOString();
+    el("iped-resultado").hidden = false;
+    el("iped-progresso").textContent = res.ok
+      ? "Caso gerado. Proveniência registrada abaixo."
+      : "IPED terminou com código " + res.code + ". Confira a pasta do caso e os logs.";
+  } catch (e) {
+    el("iped-progresso").textContent = "Falha: " + e;
+  } finally {
+    parar();
+    el("btn-iped-processar").disabled = false;
+  }
+}
+el("btn-iped-localizar").addEventListener("click", ipedLocalizar);
+el("btn-iped-detectar").addEventListener("click", ipedDetectar);
+el("btn-iped-fonte").addEventListener("click", () => ipedEscolherFonte(false));
+el("btn-iped-fonte-pasta").addEventListener("click", () => ipedEscolherFonte(true));
+el("btn-iped-processar").addEventListener("click", ipedProcessar);
+ipedCarregarPath();
 ["i-processo", "i-imei", "i-hash"].forEach((id) => { const e = el(id); if (e) e.addEventListener("input", validarIdent); });
 carregarItens();

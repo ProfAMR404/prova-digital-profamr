@@ -24,6 +24,7 @@
       <button class="aba on" id="t-caso" type="button">Caso</button>
       <button class="aba" id="t-analise" type="button">Análise</button>
       <button class="aba" id="t-saida" type="button">Saída</button>
+      <button class="aba" id="t-iped" type="button">IPED</button>
       <button class="aba" id="t-instrucoes" type="button">Instruções de uso</button>
     </div>
 
@@ -125,6 +126,50 @@
     </section>
     <section id="relatorio" class="relatorio" hidden></section>
     </div><!-- /p-saida -->
+
+    <div id="p-iped" hidden>
+    <section class="iped-intro">
+      <h2>Modo C: processar o dado bruto com o IPED</h2>
+      <p class="nota">Orquestra o IPED [sepinf-inc/IPED, GPL v3.0] para processar a imagem forense ou a pasta de origem, grava o hash de origem antes de tocar a fonte e gera um caso para aferição. O app não altera o vestígio e não embute o IPED; usa a instalação local. Reaproveita as ideias dos módulos do IPEDTools.</p>
+    </section>
+
+    <section class="controles">
+      <h2>1. IPED instalado</h2>
+      <div class="acao">
+        <button id="btn-iped-localizar" class="btn">Localizar iped.exe…</button>
+        <button id="btn-iped-detectar" class="btn">Detectar versão</button>
+      </div>
+      <p class="nota">Caminho: <span id="iped-path" class="arquivo">não configurado</span></p>
+      <p class="nota">Versão: <span id="iped-versao" class="arquivo">—</span></p>
+    </section>
+
+    <section class="controles">
+      <h2>2. Fonte do exame</h2>
+      <div class="acao">
+        <button id="btn-iped-fonte" class="btn">Escolher imagem forense…</button>
+        <button id="btn-iped-fonte-pasta" class="btn">Escolher pasta…</button>
+      </div>
+      <p class="nota">Fonte: <span id="iped-fonte" class="arquivo">nenhuma fonte selecionada</span></p>
+      <p class="nota">O hash de origem é calculado antes do processamento quando a fonte é um arquivo. Pasta e dispositivo ficam a cargo do IPED, por item.</p>
+    </section>
+
+    <section class="acao">
+      <button id="btn-iped-processar" class="btn primario">Processar com IPED</button>
+      <span id="iped-progresso" class="progresso">Pronto.</span>
+    </section>
+
+    <section id="iped-resultado" class="ident-edit" hidden>
+      <h2>Caso gerado [proveniência]</h2>
+      <div class="grid-ident">
+        <label class="campo">Fonte<input id="iped-r-fonte" readonly></label>
+        <label class="campo">Hash de origem<input id="iped-r-hash" readonly></label>
+        <label class="campo">Pasta do caso<input id="iped-r-caso" readonly></label>
+        <label class="campo">IPED<input id="iped-r-versao" readonly></label>
+        <label class="campo">Processado em<input id="iped-r-data" readonly></label>
+      </div>
+      <p class="nota">A leitura do caso pelas seis tools do IPEDTools MCP [search_documents, timeline, grafo de comunicações, detecções de IA] é a próxima camada. Cada achado entrará no relatório com esta proveniência e o hash do caso.</p>
+    </section>
+    </div><!-- /p-iped -->
 
     <div id="p-instrucoes" hidden>
     <div class="instr">
