@@ -298,6 +298,112 @@ async fn analisar(
         .map_err(|e| format!("saida invalida do motor: {e}"))
 }
 
+// Parser de uma linha CSV do IPED [campos entre aspas, aspas duplas escapadas].
+fn csv_linha(l: &str) -> Vec<String> {
+    let mut campos = Vec::new();
+    let mut cur = String::new();
+    let mut in_q = false;
+    let mut chars = l.chars().peekable();
+    while let Some(c) = chars.next() {
+        if in_q {
+            if c == '"' {
+                if chars.peek() == Some(&'"') {
+                    cur.push('"');
+                    chars.next();
+                } else {
+                    in_q = false;
+                }
+            } else {
+                cur.push(c);
+            }
+        } else {
+            match c {
+                '"' => in_q = true,
+                ',' => campos.push(std::mem::take(&mut cur)),
+                _ => cur.push(c),
+            }
+        }
+    }
+    campos.push(cur);
+    campos
+}
+
+// Modo C, leitura direta do caso: le o caso IPED real [FileList.csv], sem mock e
+// sem servidor externo. Busca, colunas, linha do tempo e resumo sobre dados reais.
+#[tauri::command]
+fn iped_ler_caso(
+    case_path: String,
+    op: String,
+    query: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let fl = std::path::Path::new(&case_path).join("FileList.csv");
+    let txt = fs::read_to_string(&fl)
+        .map_err(|e| format!("FileList.csv inacessivel no caso: {e}"))?;
+    let mut linhas = txt.lines();
+    let header_raw = linhas.next().unwrap_or("").trim_start_matches('\u{feff}');
+    let colunas = csv_linha(header_raw);
+    let idx = |nome: &str| colunas.iter().position(|c| c.eq_ignore_ascii_case(nome));
+    let registros: Vec<Vec<String>> = linhas
+        .filter(|l| !l.trim().is_empty())
+        .map(csv_linha)
+        .collect();
+    let total = registros.len();
+    let to_obj = |r: &Vec<String>| {
+        let mut m = serde_json::Map::new();
+        for (i, c) in colunas.iter().enumerate() {
+            m.insert(
+                c.clone(),
+                serde_json::Value::String(r.get(i).cloned().unwrap_or_default()),
+            );
+        }
+        serde_json::Value::Object(m)
+    };
+
+    match op.as_str() {
+        "colunas" => Ok(serde_json::json!({ "colunas": colunas, "total": total })),
+        "resumo" => {
+            let mut cats: std::collections::BTreeMap<String, usize> =
+                std::collections::BTreeMap::new();
+            if let Some(ci) = idx("Category") {
+                for r in &registros {
+                    *cats.entry(r.get(ci).cloned().unwrap_or_default()).or_insert(0) += 1;
+                }
+            }
+            Ok(serde_json::json!({ "total": total, "por_categoria": cats }))
+        }
+        "linha_tempo" => {
+            let ni = idx("Name");
+            let mi = idx("Modified");
+            let ai = idx("Accessed");
+            let cri = idx("Created");
+            let g = |o: Option<usize>, r: &Vec<String>| {
+                o.and_then(|i| r.get(i)).cloned().unwrap_or_default()
+            };
+            let out: Vec<serde_json::Value> = registros
+                .iter()
+                .take(500)
+                .map(|r| {
+                    serde_json::json!({
+                        "Name": g(ni, r), "Modified": g(mi, r),
+                        "Accessed": g(ai, r), "Created": g(cri, r)
+                    })
+                })
+                .collect();
+            Ok(serde_json::json!({ "total": total, "itens": out }))
+        }
+        _ => {
+            let q = query.unwrap_or_default().to_lowercase();
+            let itens: Vec<serde_json::Value> = registros
+                .iter()
+                .filter(|r| q.is_empty() || r.iter().any(|f| f.to_lowercase().contains(&q)))
+                .take(200)
+                .map(to_obj)
+                .collect();
+            Ok(serde_json::json!({ "colunas": colunas, "total": total, "achados": itens.len(), "itens": itens }))
+        }
+    }
+}
+
 // Serializa um valor JSON-RPC como uma linha [transporte STDIO do MCP].
 fn jsonrpc_linha(v: &serde_json::Value) -> String {
     let mut s = serde_json::to_string(v).unwrap_or_default();
@@ -432,6 +538,7 @@ pub fn run() {
             hash_arquivo,
             iped_detectar,
             iped_processar,
+            iped_ler_caso,
             mcp_iped
         ])
         .run(tauri::generate_context!())

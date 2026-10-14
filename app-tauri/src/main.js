@@ -857,5 +857,33 @@ async function mcpChamar() {
 el("btn-mcp-conectar").addEventListener("click", mcpConectar);
 el("btn-mcp-chamar").addEventListener("click", mcpChamar);
 mcpCarregar();
+
+// Modo C, leitura direta do caso real [sem servidor externo].
+async function lerCaso(op) {
+  const caso = iped.casePath || el("iped-r-caso").value || "";
+  if (!caso) { el("caso-ler-status").textContent = "processe uma fonte primeiro ou informe o caso."; return; }
+  el("caso-ler-status").textContent = "lendo o caso…";
+  try {
+    const query = op === "buscar" ? el("caso-query").value.trim() : null;
+    const r = await invoke("iped_ler_caso", { casePath: caso, op, query });
+    let txt = "// caso " + caso + " | total de itens: " + (r.total || 0) + "\n";
+    if (op === "buscar") {
+      txt += "// acertos: " + (r.achados || 0) + "\n\n";
+      txt += (r.itens || []).map((it) => `${it.Name}  [${it.Category}]  ${it.Size}B\n  MD5 ${it.MD5}\n  SHA1 ${it.SHA1}\n  mod ${it.Modified}  caminho ${it.Path}`).join("\n\n");
+    } else if (op === "linha_tempo") {
+      txt += (r.itens || []).map((it) => `${it.Modified}  ${it.Name}`).join("\n");
+    } else if (op === "resumo") {
+      txt += "por categoria:\n" + Object.entries(r.por_categoria || {}).map(([k, v]) => `  ${v}  ${k}`).join("\n");
+    }
+    el("caso-ler-saida").value = txt;
+    el("caso-ler-resultado").hidden = false;
+    el("caso-ler-status").textContent = "pronto.";
+  } catch (e) {
+    el("caso-ler-status").textContent = "falha: " + e;
+  }
+}
+el("btn-caso-buscar").addEventListener("click", () => lerCaso("buscar"));
+el("btn-caso-resumo").addEventListener("click", () => lerCaso("resumo"));
+el("btn-caso-tempo").addEventListener("click", () => lerCaso("linha_tempo"));
 ["i-processo", "i-imei", "i-hash"].forEach((id) => { const e = el(id); if (e) e.addEventListener("input", validarIdent); });
 carregarItens();

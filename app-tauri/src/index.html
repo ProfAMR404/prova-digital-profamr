@@ -171,8 +171,24 @@
     </section>
 
     <section class="controles">
-      <h2>3. Ler o caso pelo IPEDTools MCP</h2>
-      <p class="nota">Cliente MCP por STDIO. Configure o comando do servidor do IPEDTools [exige cadastro no site]. O app sobe o servidor, faz o handshake e lê o caso sem alterar o dado bruto.</p>
+      <h2>3. Ler o caso [direto, real, offline]</h2>
+      <p class="nota">Lê o caso que o IPED gerou nesta máquina [FileList.csv do caso], sem servidor externo. Dados reais: nome, tamanho, extensão, categoria, MD5, SHA1 e datas de cada item.</p>
+      <div class="acao">
+        <input id="caso-query" class="resp" placeholder="termo de busca no caso">
+        <button id="btn-caso-buscar" class="btn">Buscar</button>
+        <button id="btn-caso-resumo" class="btn">Resumo</button>
+        <button id="btn-caso-tempo" class="btn">Linha do tempo</button>
+        <span id="caso-ler-status" class="arquivo"></span>
+      </div>
+      <section id="caso-ler-resultado" hidden>
+        <h3>Itens do caso [dados reais do FileList.csv]</h3>
+        <textarea id="caso-ler-saida" class="saida-txt" spellcheck="false" readonly rows="12"></textarea>
+      </section>
+    </section>
+
+    <section class="controles">
+      <h2>4. Ler o caso pelo IPEDTools MCP [servidor oficial]</h2>
+      <p class="nota">Cliente MCP por STDIO, para o servidor do IPEDTools [exige cadastro no site]. O app sobe o servidor, faz o handshake e lê o caso sem alterar o dado bruto. Sem o servidor oficial, use a leitura direta acima.</p>
       <div class="grid-ident">
         <label class="campo campo-largo">Comando do servidor MCP<input id="mcp-cmd" placeholder="caminho do executável do servidor IPEDTools MCP"></label>
         <label class="campo campo-largo">Argumentos [um por linha, opcional]<textarea id="mcp-args" rows="2" placeholder="o caminho do caso é anexado automaticamente"></textarea></label>
