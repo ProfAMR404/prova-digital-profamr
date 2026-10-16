@@ -780,7 +780,9 @@ async function ipedProcessar() {
   try {
     const res = await invoke("iped_processar", { fonte: iped.fonte, ipedPath: iped.path });
     el("iped-r-fonte").value = res.fonte || iped.fonte;
-    el("iped-r-hash").value = res.origem_sha256 || "[fonte não é arquivo; integridade por item no IPED]";
+    el("iped-r-hash").value = res.origem_sha256
+      ? "SHA-256 da fonte " + res.origem_sha256
+      : (res.caso_fingerprint ? "fingerprint do caso " + res.caso_fingerprint : "[sem âncora de integridade]");
     el("iped-r-caso").value = res.case_path || "";
     iped.casePath = res.case_path || "";
     el("iped-r-versao").value = el("iped-versao").textContent;
@@ -802,61 +804,6 @@ el("btn-iped-fonte").addEventListener("click", () => ipedEscolherFonte(false));
 el("btn-iped-fonte-pasta").addEventListener("click", () => ipedEscolherFonte(true));
 el("btn-iped-processar").addEventListener("click", ipedProcessar);
 ipedCarregarPath();
-
-// Modo C, leitura: cliente MCP do IPEDTools.
-function mcpCarregar() {
-  try {
-    el("mcp-cmd").value = localStorage.getItem("iped_mcp_cmd") || "";
-    el("mcp-args").value = localStorage.getItem("iped_mcp_args") || "";
-  } catch (e) {}
-}
-function mcpArgs() {
-  const linhas = el("mcp-args").value.split("\n").map((s) => s.trim()).filter(Boolean);
-  const caso = iped.casePath || el("iped-r-caso").value || "";
-  if (caso) linhas.push(caso);
-  return linhas;
-}
-async function mcpConectar() {
-  const comando = el("mcp-cmd").value.trim();
-  if (!comando) { el("mcp-status").textContent = "configure o comando do servidor MCP."; return; }
-  try { localStorage.setItem("iped_mcp_cmd", comando); localStorage.setItem("iped_mcp_args", el("mcp-args").value); } catch (e) {}
-  el("mcp-status").textContent = "conectando…";
-  try {
-    const r = await invoke("mcp_iped", { comando, args: mcpArgs(), op: "list", tool: null, arguments: null, cwd: null });
-    const tools = (r.result && r.result.tools) || [];
-    const sel = el("mcp-tool");
-    sel.innerHTML = tools.map((t) => `<option value="${escapar(t.name)}">${escapar(t.name)}</option>`).join("");
-    el("mcp-server").textContent = r.server ? (r.server.name || "") + " " + (r.server.version || "") : "—";
-    el("mcp-status").textContent = tools.length + " tool(s) disponível(is).";
-    el("btn-mcp-chamar").disabled = tools.length === 0;
-  } catch (e) {
-    el("mcp-status").textContent = "falha: " + e;
-    el("btn-mcp-chamar").disabled = true;
-  }
-}
-async function mcpChamar() {
-  const comando = el("mcp-cmd").value.trim();
-  const tool = el("mcp-tool").value;
-  if (!comando || !tool) return;
-  const caso = iped.casePath || el("iped-r-caso").value || "";
-  const query = el("mcp-arg-query").value.trim();
-  const argumentos = {};
-  if (caso) argumentos.case = caso;
-  if (/search|busca|document/i.test(tool) && query) argumentos.query = query;
-  el("mcp-status").textContent = "chamando " + tool + "…";
-  try {
-    const r = await invoke("mcp_iped", { comando, args: mcpArgs(), op: "call", tool, arguments: argumentos, cwd: null });
-    const prov = "// proveniência: servidor " + (el("mcp-server").textContent || "") + " | caso " + caso + "\n";
-    el("mcp-saida").value = prov + JSON.stringify(r.result, null, 2);
-    el("mcp-resultado").hidden = false;
-    el("mcp-status").textContent = "retorno de " + tool + " pronto.";
-  } catch (e) {
-    el("mcp-status").textContent = "falha: " + e;
-  }
-}
-el("btn-mcp-conectar").addEventListener("click", mcpConectar);
-el("btn-mcp-chamar").addEventListener("click", mcpChamar);
-mcpCarregar();
 
 // Modo C, leitura direta do caso real [sem servidor externo].
 async function lerCaso(op) {

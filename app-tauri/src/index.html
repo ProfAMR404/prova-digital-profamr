@@ -150,7 +150,7 @@
         <button id="btn-iped-fonte-pasta" class="btn">Escolher pasta…</button>
       </div>
       <p class="nota">Fonte: <span id="iped-fonte" class="arquivo">nenhuma fonte selecionada</span></p>
-      <p class="nota">O hash de origem é calculado antes do processamento quando a fonte é um arquivo. Pasta e dispositivo ficam a cargo do IPED, por item.</p>
+      <p class="nota">Fonte-arquivo: SHA-256 de origem calculado antes do processamento. Fonte-pasta ou dispositivo: fingerprint reproduzível do caso [SHA-256 sobre os itens do FileList.csv], além do hash por item do IPED.</p>
     </section>
 
     <section class="acao">
@@ -167,7 +167,7 @@
         <label class="campo">IPED<input id="iped-r-versao" readonly></label>
         <label class="campo">Processado em<input id="iped-r-data" readonly></label>
       </div>
-      <p class="nota">O caso é lido pelo IPEDTools MCP na seção abaixo, read-only. Cada achado entra com esta proveniência e o hash do caso.</p>
+      <p class="nota">O caso é lido na seção abaixo, read-only. Cada achado entra com esta proveniência.</p>
     </section>
 
     <section class="controles">
@@ -186,28 +186,6 @@
       </section>
     </section>
 
-    <section class="controles">
-      <h2>4. Ler o caso pelo IPEDTools MCP [servidor oficial]</h2>
-      <p class="nota">Cliente MCP por STDIO, para o servidor do IPEDTools [exige cadastro no site]. O app sobe o servidor, faz o handshake e lê o caso sem alterar o dado bruto. Sem o servidor oficial, use a leitura direta acima.</p>
-      <div class="grid-ident">
-        <label class="campo campo-largo">Comando do servidor MCP<input id="mcp-cmd" placeholder="caminho do executável do servidor IPEDTools MCP"></label>
-        <label class="campo campo-largo">Argumentos [um por linha, opcional]<textarea id="mcp-args" rows="2" placeholder="o caminho do caso é anexado automaticamente"></textarea></label>
-      </div>
-      <div class="acao">
-        <button id="btn-mcp-conectar" class="btn">Conectar e listar tools</button>
-        <span id="mcp-status" class="arquivo">não conectado</span>
-      </div>
-      <div class="acao">
-        <select id="mcp-tool" class="resp"></select>
-        <input id="mcp-arg-query" class="resp" placeholder="consulta [search_documents]">
-        <button id="btn-mcp-chamar" class="btn" disabled>Chamar tool</button>
-      </div>
-      <p class="nota">Servidor: <span id="mcp-server" class="arquivo">—</span></p>
-      <section id="mcp-resultado" hidden>
-        <h3>Retorno da tool [proveniência: servidor, caso e hash]</h3>
-        <textarea id="mcp-saida" class="saida-txt" spellcheck="false" readonly rows="12"></textarea>
-      </section>
-    </section>
     </div><!-- /p-iped -->
 
     <div id="p-instrucoes" hidden>

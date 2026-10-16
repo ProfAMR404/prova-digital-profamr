@@ -209,12 +209,19 @@ async fn iped_processar(
     .await
     .map_err(|e| e.to_string())??;
 
+    let caso_fingerprint = if code == 0 {
+        caso_fingerprint(&saida_str)
+    } else {
+        None
+    };
+
     Ok(serde_json::json!({
         "ok": code == 0,
         "code": code,
         "case_path": saida_str,
         "fonte": fonte,
         "origem_sha256": origem_sha256,
+        "caso_fingerprint": caso_fingerprint,
         "iped_path": iped_path,
     }))
 }
@@ -326,6 +333,28 @@ fn csv_linha(l: &str) -> Vec<String> {
     }
     campos.push(cur);
     campos
+}
+
+// Fingerprint reproduzivel do caso: SHA-256 sobre as linhas ordenadas do
+// FileList.csv [cada item com nome, hash e datas]. Ancora de integridade quando
+// a fonte e pasta ou dispositivo e nao ha um unico hash de origem.
+fn caso_fingerprint(case_path: &str) -> Option<String> {
+    use sha2::{Digest, Sha256};
+    let fl = std::path::Path::new(case_path).join("FileList.csv");
+    let txt = fs::read_to_string(&fl).ok()?;
+    let mut linhas: Vec<String> = txt
+        .lines()
+        .skip(1)
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| l.trim_start_matches('\u{feff}').to_string())
+        .collect();
+    linhas.sort();
+    let mut hasher = Sha256::new();
+    for l in &linhas {
+        hasher.update(l.as_bytes());
+        hasher.update(b"\n");
+    }
+    Some(format!("{:x}", hasher.finalize()))
 }
 
 // Modo C, leitura direta do caso: le o caso IPED real [FileList.csv], sem mock e
